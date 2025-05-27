@@ -1,5 +1,6 @@
 package com.f1soft.sces.security;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +22,8 @@ public class JwtFilter extends OncePerRequestFilter {
   private final CustomUserDetailService userDetailService;
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request,@Nonnull HttpServletResponse response,
+      @Nonnull FilterChain filterChain) throws ServletException, IOException {
 
     if(request.getRequestURI().startsWith("/api/auth/login") ) {
       filterChain.doFilter(request, response);
