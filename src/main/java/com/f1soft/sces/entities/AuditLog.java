@@ -34,7 +34,6 @@ public class AuditLog {
   @Column(nullable = false)
   private String action;
 
-  @Column(nullable = false)
   private String entityName;
 
   private String entityId;              //not nullable because login gareko bela entityId null huna sakxa.

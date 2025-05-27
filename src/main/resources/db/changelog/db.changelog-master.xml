@@ -48,7 +48,7 @@
 
   <changeSet id="2025-05-36-add-instructor-table" author="SamratSingh">
     <createTable tableName="instructor">
-      <column name="instructor_id" type="bigint">
+      <column name="instructor_id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
       <column name="user_id" type="bigint">
@@ -85,7 +85,7 @@
 
   <changeSet id="2025-05-36-add-student-table" author="SamratSingh">
     <createTable tableName="student">
-      <column name="student_id" type="bigint">
+      <column name="student_id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
       <column name="status" type="VARCHAR(100)">
@@ -125,5 +125,13 @@
     </createTable>
   </changeSet>
 
+  <changeSet id="2025-05-27-remove-not-null-entityName-" author="Samrat Singh">
+    <dropNotNullConstraint tableName="audit_log" columnName="entity_name"
+      columnDataType="VARCHAR(255)"/>
+  </changeSet>
+
+  <changeSet id="2025-05-27-add-auto-increment-audit-id" author="Samrat Singh">
+    <addAutoIncrement tableName="audit_log" columnName="audit_id" columnDataType="BIGINT"/>
+  </changeSet>
 
 </databaseChangeLog>
