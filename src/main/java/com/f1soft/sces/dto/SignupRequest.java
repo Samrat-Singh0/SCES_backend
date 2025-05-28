@@ -1,4 +1,4 @@
-package com.f1soft.sces.models;
+package com.f1soft.sces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

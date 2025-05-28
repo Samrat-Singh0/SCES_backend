@@ -1,4 +1,4 @@
-package com.f1soft.sces.security;
+package com.f1soft.sces.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

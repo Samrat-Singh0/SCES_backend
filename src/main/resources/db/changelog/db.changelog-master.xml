@@ -134,4 +134,22 @@
     <addAutoIncrement tableName="audit_log" columnName="audit_id" columnDataType="BIGINT"/>
   </changeSet>
 
+  <changeSet id="2025-05-27-add-refresh-token-table-new" author="Samrat Singh">
+    <createTable tableName="refresh_token">
+      <column name="refresh_id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints foreignKeyName="fk_refresh_user" referencedTableName="user"
+          referencedColumnNames="id"/>
+      </column>
+      <column name="refresh_token" type="VARCHAR(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="expires_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
 </databaseChangeLog>

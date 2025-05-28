@@ -1,5 +1,6 @@
 package com.f1soft.sces.entities;
 
+import com.f1soft.sces.auth.RefreshToken;
 import com.f1soft.sces.enums.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -53,4 +54,7 @@ public class User {
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
   private Instructor instructor;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+  private RefreshToken refreshToken;
 }

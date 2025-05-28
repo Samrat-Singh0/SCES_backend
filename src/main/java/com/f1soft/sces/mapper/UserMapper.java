@@ -1,6 +1,6 @@
 package com.f1soft.sces.mapper;
 
-import com.f1soft.sces.models.SignupRequest;
+import com.f1soft.sces.dto.SignupRequest;
 import com.f1soft.sces.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

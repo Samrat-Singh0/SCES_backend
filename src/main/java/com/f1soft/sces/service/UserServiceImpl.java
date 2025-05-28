@@ -1,22 +1,15 @@
 package com.f1soft.sces.service;
 
+import com.f1soft.sces.dto.SignupRequest;
 import com.f1soft.sces.entities.Instructor;
 import com.f1soft.sces.entities.Student;
 import com.f1soft.sces.entities.User;
 import com.f1soft.sces.mapper.UserMapper;
-import com.f1soft.sces.models.LoginRequest;
-import com.f1soft.sces.models.LoginResponse;
-import com.f1soft.sces.models.SignupRequest;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.repository.UserRepository;
-import com.f1soft.sces.security.CustomUserDetailService;
-import com.f1soft.sces.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,26 +24,6 @@ public class UserServiceImpl implements UserService {
   private final StudentRepository studentRepository;
   private final InstructorRepository instructorRepository;
   private final AuditLogService auditLogService;
-  private final AuthenticationManager authenticationManager;
-  private final CustomUserDetailService customUserDetailService;
-  private final JwtUtil jwtUtil;
-
-
-  public LoginResponse login(LoginRequest request) {
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.getEmail(),
-            request.getPassword())
-    );
-
-    final UserDetails userDetails = customUserDetailService.loadUserByUsername(request.getEmail());
-    final String jwt = jwtUtil.generateToken(userDetails);
-
-    User user = findUserByEmail(request.getEmail());
-
-    auditLogService.log(user, "Logged-In", "", "");
-
-    return new LoginResponse(jwt);
-  }
 
   @Override
   @Transactional

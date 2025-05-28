@@ -1,5 +1,6 @@
-package com.f1soft.sces.security;
+package com.f1soft.sces.auth.jwt;
 
+import com.f1soft.sces.security.CustomUserDetailService;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

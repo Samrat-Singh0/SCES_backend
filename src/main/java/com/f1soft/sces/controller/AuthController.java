@@ -1,9 +1,10 @@
 package com.f1soft.sces.controller;
 
+import com.f1soft.sces.auth.AuthService;
+import com.f1soft.sces.dto.LoginRequest;
+import com.f1soft.sces.dto.LoginResponse;
+import com.f1soft.sces.dto.SignupRequest;
 import com.f1soft.sces.entities.User;
-import com.f1soft.sces.models.LoginRequest;
-import com.f1soft.sces.models.LoginResponse;
-import com.f1soft.sces.models.SignupRequest;
 import com.f1soft.sces.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -18,14 +19,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+  private final AuthService authService;
   private final UserService userService;
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-    LoginResponse loginResponse = userService.login(loginRequest);
+    LoginResponse loginResponse = authService.login(loginRequest);
+
+    String token = loginResponse.getToken();
+
+    loginResponse.setToken(null);
+
     return ResponseEntity.ok()
-        .header(HttpHeaders.AUTHORIZATION,"Bearer " + loginResponse.getToken())
-        .body("Login Success");
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+        .body(loginResponse);
+
 
   }
 

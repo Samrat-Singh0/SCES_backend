@@ -1,4 +1,4 @@
-package com.f1soft.sces.models;
+package com.f1soft.sces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
+public class LoginResponse {
+
+  private String token;
+  private String role;
   private String email;
-  private String password;
+  private String fullName;
 }
