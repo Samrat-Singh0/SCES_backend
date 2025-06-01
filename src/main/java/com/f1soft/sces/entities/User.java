@@ -49,6 +49,9 @@ public class User {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Column(name="must_change_password",nullable = false)
+  private boolean mustChangePassword;
+
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
   private Student student;
 

@@ -1,8 +1,9 @@
 package com.f1soft.sces.auth;
 
 import com.f1soft.sces.auth.jwt.JwtUtil;
+import com.f1soft.sces.dto.AuthResponse;
 import com.f1soft.sces.dto.LoginRequest;
-import com.f1soft.sces.dto.LoginResponse;
+import com.f1soft.sces.dto.LoginUserResponse;
 import com.f1soft.sces.entities.User;
 import com.f1soft.sces.security.CustomUserDetailService;
 import com.f1soft.sces.service.AuditLogService;
@@ -23,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
   private final UserService userService;
   private final AuditLogService auditLogService;
 
-  public LoginResponse login(LoginRequest loginRequest) {
+  public AuthResponse login(LoginRequest loginRequest) {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
             loginRequest.getPassword()));
@@ -33,14 +34,14 @@ public class AuthServiceImpl implements AuthService {
 
     User user = userService.findUserByEmail(loginRequest.getEmail());
 
-    LoginResponse loginResponse = LoginResponse.builder()
-        .token(jwt)
+    LoginUserResponse loginUserResponse = LoginUserResponse.builder()
         .email(user.getEmail())
         .fullName(user.getFullName())
         .role(user.getRole().name())
         .build();
 
     auditLogService.log(user, "Logged-In", "","");
-    return loginResponse;
+    System.out.println(jwt);
+    return new AuthResponse(jwt, loginUserResponse);            //wrapper for jwt and loginned user ko details.
   }
 }

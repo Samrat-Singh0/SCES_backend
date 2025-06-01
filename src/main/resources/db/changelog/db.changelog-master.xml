@@ -152,4 +152,12 @@
     </createTable>
   </changeSet>
 
+  <changeSet id="2025-06-01-add-must-change-password-column-in-user" author="Samrat Singh">
+    <addColumn tableName="user">
+      <column name="must_change_password" type="boolean" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
