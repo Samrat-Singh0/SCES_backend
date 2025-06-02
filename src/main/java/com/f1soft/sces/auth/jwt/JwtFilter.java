@@ -26,7 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, @Nonnull HttpServletResponse response,
       @Nonnull FilterChain filterChain) throws ServletException, IOException {
 
-    if (request.getRequestURI().startsWith("/api/auth/login")) {
+    if (request.getRequestURI().startsWith("/api/auth/**")) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -51,10 +51,10 @@ public class JwtFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        System.out.println("JWT: " + jwtToken);
-        System.out.println("Username: " + username);
-        System.out.println("Authorities: " + userDetails.getAuthorities());
-        System.out.println("Authentication: " + authentication);
+//        System.out.println("JWT: " + jwtToken);
+//        System.out.println("Username: " + username);
+//        System.out.println("Authorities: " + userDetails.getAuthorities());
+//        System.out.println("Authentication: " + authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         System.out.println("security context set.");
       }

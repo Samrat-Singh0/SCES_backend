@@ -38,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
         .email(user.getEmail())
         .fullName(user.getFullName())
         .role(user.getRole().name())
+        .mustChangePassword(user.isMustChangePassword())
         .build();
 
     auditLogService.log(user, "Logged-In", "","");

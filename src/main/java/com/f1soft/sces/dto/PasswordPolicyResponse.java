@@ -6,12 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginUserResponse {
-  private String role;
-  private String email;
-  private String fullName;
-  private Boolean mustChangePassword;
+@Builder
+public class PasswordPolicyResponse {
+  String policy_code;
+  String parameters;
+  String regex;
+  boolean active;
 }

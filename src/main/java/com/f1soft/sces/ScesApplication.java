@@ -12,6 +12,10 @@ public class ScesApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ScesApplication.class, args);
+
+//		for(int i = 0 ; i < 5 ;i++){
+//			System.out.println("PWP-" + UUID.randomUUID());
+//		}
 	}
 
 }

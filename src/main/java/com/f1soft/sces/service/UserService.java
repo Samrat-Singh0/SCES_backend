@@ -9,5 +9,5 @@ public interface UserService {
   User registerUser(SignupRequest signupRequest);
   User findUserByEmail(String email);
   String generateUserCode();
-  ResponseEntity<?> changePassword(String email, ChangePasswordRequest changePasswordRequest);
+  ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest);
 }

@@ -80,14 +80,20 @@ public class UserServiceImpl implements UserService {
         "<li><strong>Email:</strong> " + email + "</li>" +
         "<li><strong>Password:</strong> " + password + "</li>" +
         "</ul>" +
-        "<p><a href=\"http://localhost:4200/initial-login\">Click here to sign in</a></p>";
+        "<p><a href=\"http://localhost:4200/login\">Click here to sign in</a></p>";
 
     emailService.sendEmail(email, subject, body);
   }
 
   @Override
-  public ResponseEntity<?> changePassword(String email,
-      ChangePasswordRequest changePasswordRequest) {
-    return ResponseEntity.ok("sdfsfd");
+  public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest) {
+    User user = userRepository.findByEmail(changePasswordRequest.getEmail())
+        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + changePasswordRequest.getEmail()));
+
+    user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+    user.setMustChangePassword(false);
+    userRepository.save(user);
+
+    return ResponseEntity.ok().build();
   }
 }

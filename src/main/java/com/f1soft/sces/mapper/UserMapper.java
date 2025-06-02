@@ -14,4 +14,5 @@ public interface UserMapper {
 
   @Mapping(target = "id",ignore = true)
   User toUser(SignupRequest signupRequest);
+
 }
