@@ -1,14 +1,12 @@
 package com.f1soft.sces.controller;
 
 import com.f1soft.sces.auth.AuthService;
-import com.f1soft.sces.dto.AuthResponse;
 import com.f1soft.sces.dto.ChangePasswordRequest;
 import com.f1soft.sces.dto.LoginRequest;
 import com.f1soft.sces.dto.SignupRequest;
 import com.f1soft.sces.entities.User;
 import com.f1soft.sces.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,11 +24,7 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-    AuthResponse authResponse = authService.login(loginRequest);
-
-    return ResponseEntity.ok()
-        .header(HttpHeaders.AUTHORIZATION, "Bearer " + authResponse.getToken())
-        .body(authResponse.getLoginUserResponse());
+     return authService.login(loginRequest);
   }
 
 

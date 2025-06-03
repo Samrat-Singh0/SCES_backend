@@ -7,6 +7,7 @@ import com.f1soft.sces.mapper.PasswordPolicyMapper;
 import com.f1soft.sces.repository.PasswordPolicyRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +17,24 @@ public class PasswordPolicyServiceImpl implements PasswordPolicyService {
   private final PasswordPolicyRepository passwordPolicyRepository;
 
   @Override
-  public List<PasswordPolicyResponse> getActivePolicies() {
+  public List<PasswordPolicyResponse> getAllPolicies() {
     PasswordPolicyMapper mapper = new PasswordPolicyMapper();
 
-    return mapper.toDto(passwordPolicyRepository.findByActiveTrue());
+    return mapper.toDto(passwordPolicyRepository.findAll());
+  }
+
+  @Override
+  public List<PasswordPolicyResponse> getActivePolicies() {
+    Optional<List<PasswordPolicy>> activePolicies = passwordPolicyRepository.findByActiveTrue();
+
+    if (activePolicies.isPresent()) {
+      List<PasswordPolicy> policies = activePolicies.get();
+      PasswordPolicyMapper mapper = new PasswordPolicyMapper();
+      return mapper.toDto(policies);
+    }
+    else{
+      return new ArrayList<>();
+    }
   }
 
   @Override

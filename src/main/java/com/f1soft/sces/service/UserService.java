@@ -6,6 +6,8 @@ import com.f1soft.sces.entities.User;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
+
+//  List<UserDto> getAllUsers();
   User registerUser(SignupRequest signupRequest);
   User findUserByEmail(String email);
   String generateUserCode();

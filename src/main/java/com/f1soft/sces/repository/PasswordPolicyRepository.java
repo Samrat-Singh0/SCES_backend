@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PasswordPolicyRepository extends JpaRepository<PasswordPolicy, Long> {
 
-  List<PasswordPolicy> findByActiveTrue();
+  Optional<List<PasswordPolicy>> findByActiveTrue();
   Optional<PasswordPolicy> findByPolicyCode(String policyCode);
 }

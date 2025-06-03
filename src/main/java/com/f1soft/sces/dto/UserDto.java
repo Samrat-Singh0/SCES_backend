@@ -16,4 +16,5 @@ public class UserDto {
   private String address;
   private String phoneNumber;
   private String role;
+  private boolean mustChangePassword;
 }
