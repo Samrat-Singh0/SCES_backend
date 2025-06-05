@@ -36,7 +36,7 @@ public class AuditLog {
 
   private String entityName;
 
-  private String entityId;              //not nullable because login gareko bela entityId null huna sakxa.
+  private Long entityId;              //not nullable because login gareko bela entityId null huna sakxa.
 
   @Column(nullable = false)
   private LocalDateTime actionTime;

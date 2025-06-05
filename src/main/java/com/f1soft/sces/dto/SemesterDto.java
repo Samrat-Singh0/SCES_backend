@@ -1,5 +1,6 @@
 package com.f1soft.sces.dto;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PasswordPolicyDto {
-  String policy_code;
-  boolean active;
+public class SemesterDto {
+  private String label;
+  private BigDecimal semesterFee;
 }

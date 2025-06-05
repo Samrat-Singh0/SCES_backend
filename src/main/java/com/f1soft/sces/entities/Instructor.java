@@ -1,5 +1,6 @@
 package com.f1soft.sces.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +27,7 @@ public class Instructor {
 
   @OneToOne
   @JoinColumn(name = "user_id")
+  @JsonBackReference
   private User user;
 
   @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)

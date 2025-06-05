@@ -1,7 +1,8 @@
 package com.f1soft.sces.mapper;
 
-import com.f1soft.sces.dto.SignupRequest;
+import com.f1soft.sces.dto.UserDto;
 import com.f1soft.sces.entities.User;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -9,11 +10,8 @@ import org.mapstruct.factory.Mappers;
 public interface UserMapper {
   UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-  SignupRequest toSignupRequest(User user);
-
-  User toUser(SignupRequest signupRequest);
-//
-//  UserDto toUserDto(User user);
-//  List<UserDto> toUserDtoList(List<User> users);
+  User toUser(UserDto userDto);
+  UserDto toUserDto(User user);
+  List<UserDto> toUserDtoList(List<User> users);
 
 }

@@ -1,6 +1,6 @@
 package com.f1soft.sces.controller;
 
-import com.f1soft.sces.dto.PasswordPolicyDto;
+import com.f1soft.sces.dto.PasswordPolicyRequest;
 import com.f1soft.sces.dto.PasswordPolicyResponse;
 import com.f1soft.sces.entities.PasswordPolicy;
 import com.f1soft.sces.service.PasswordPolicyService;
@@ -33,7 +33,7 @@ public class PasswordPolicyController {
   }
 
   @PutMapping("/update")
-  public ResponseEntity<?> updatePolicies(@RequestBody List<PasswordPolicyDto> policies) {
+  public ResponseEntity<?> updatePolicies(@RequestBody List<PasswordPolicyRequest> policies) {
     List<PasswordPolicy> updatedPolicies = passwordPolicyService.updatePolicies(policies);
     return ResponseEntity.ok(updatedPolicies);
   }

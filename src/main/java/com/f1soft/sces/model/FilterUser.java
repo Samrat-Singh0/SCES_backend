@@ -1,19 +1,17 @@
-package com.f1soft.sces.dto;
+package com.f1soft.sces.model;
 
+import com.f1soft.sces.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignupRequest {
-  private String email;
-  private String password;
+@Builder
+public class FilterUser {
   private String fullName;
-  private String address;
+  private Role role;
   private String phoneNumber;
-  private String role;
 }

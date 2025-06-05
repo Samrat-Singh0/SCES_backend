@@ -1,17 +1,25 @@
 package com.f1soft.sces.service;
 
 import com.f1soft.sces.dto.ChangePasswordRequest;
-import com.f1soft.sces.dto.SignupRequest;
+import com.f1soft.sces.dto.UserDto;
 import com.f1soft.sces.entities.Instructor;
 import com.f1soft.sces.entities.Student;
 import com.f1soft.sces.entities.User;
+import com.f1soft.sces.enums.Role;
+import com.f1soft.sces.enums.Status;
 import com.f1soft.sces.mapper.UserMapper;
+import com.f1soft.sces.model.FilterUser;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,38 +36,40 @@ public class UserServiceImpl implements UserService {
   private final AuditLogService auditLogService;
   private final EmailService emailService;
 
-//  @Override
-//  public List<UserDto> getAllUsers() {
-//    List<User> users = userRepository.findAll();
-//    return UserMapper.INSTANCE.toUserDtoList(users);
-//  }
+  @Override
+  public List<UserDto> getActiveUsers() {
+    List<User> users = userRepository.findAllByStatus(Status.ACTIVE);
+    return UserMapper.INSTANCE.toUserDtoList(users);
+  }
 
   @Override
   @Transactional
-  public User registerUser(SignupRequest signupRequest) {
-    if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+  public User registerUser(UserDto userDto) {
+    if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
       throw new IllegalArgumentException("Email already in use");
     }
 
-    User user = UserMapper.INSTANCE.toUser(signupRequest);
+    User user = UserMapper.INSTANCE.toUser(userDto);
+    String password = generateRandomPassword();
 
     user.setUserCode(generateUserCode());
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
+    user.setPassword(password);
     user.setMustChangePassword(true);
+    user.setStatus(Status.ACTIVE);
 
     User savedUser = userRepository.save(user);
 
     Object userRoleEntity = userRoleEntityFactoryImpl.createRoleEntity(savedUser);
-
     if (userRoleEntity instanceof Student student) {                                      //conditional entry of data in different tables
       studentRepository.save(student);
     } else if (userRoleEntity instanceof Instructor instructor) {
       instructorRepository.save(instructor);
     }
 
-    auditLogService.log(user, "Signed Up", "", "");             //log the event.
+    User loggedInUser = getLoggedUserId();
+    auditLogService.log(loggedInUser, "Signed Up", "User", user.getId());             //log the event.
 
-    sendEmail(signupRequest.getEmail(), signupRequest.getPassword());
+    sendEmail(userDto.getEmail(), password);
 
     return userRepository.save(user);
   }
@@ -71,8 +81,41 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public void deleteUser(String userCode) {
+    User user = userRepository.findByUserCode(userCode).orElseThrow(() -> new UsernameNotFoundException("User not found with code: " + userCode));
+    user.setStatus(Status.INACTIVE);
+    userRepository.save(user);
+  }
+
+  @Override
+  public String updateUser(UserDto userDto) {
+    try{
+      User user = userRepository.findByUserCode(userDto.getUserCode()).orElseThrow(() -> new UsernameNotFoundException("User not found with code: " + userDto.getUserCode()));
+      user.setEmail(userDto.getEmail());
+      user.setAddress(userDto.getAddress());
+      user.setPhoneNumber(userDto.getPhoneNumber());
+      user.setRole(Role.valueOf(userDto.getRole()));
+
+      userRepository.save(user);
+      return "Successfully updated";
+    }catch (Exception e){
+      return ("Update Failed: " + e.getMessage());
+    }
+
+  }
+
+  @Override
+  public List<UserDto> getUserBySearchText(FilterUser filterCriteria) {
+    return userRepository.findUserBySearchText(filterCriteria).stream().map(UserMapper.INSTANCE::toUserDto).collect(
+        Collectors.toList());
+  }
+
+  @Override
   public String generateUserCode() {
     return "USR-" + System.currentTimeMillis();
+  }
+  public String generateRandomPassword() {
+    return passwordEncoder.encode(UUID.randomUUID().toString());
   }
 
   public void sendEmail(String email, String password) {
@@ -101,5 +144,13 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     return ResponseEntity.ok().build();
+  }
+
+  public User getLoggedUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if(authentication == null || !authentication.isAuthenticated()) {
+      return null;
+    }
+    return userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + authentication.getName()));
   }
 }

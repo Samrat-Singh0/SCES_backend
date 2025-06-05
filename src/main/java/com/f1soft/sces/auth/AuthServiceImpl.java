@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
           .mustChangePassword(user.isMustChangePassword())
           .build();
 
-      auditLogService.log(user, "Logged-In", "","");
+      auditLogService.log(user, "Logged-In", "", null);
       System.out.println(jwt);
 
       return ResponseEntity.ok()

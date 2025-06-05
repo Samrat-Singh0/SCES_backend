@@ -3,7 +3,7 @@ package com.f1soft.sces.controller;
 import com.f1soft.sces.auth.AuthService;
 import com.f1soft.sces.dto.ChangePasswordRequest;
 import com.f1soft.sces.dto.LoginRequest;
-import com.f1soft.sces.dto.SignupRequest;
+import com.f1soft.sces.dto.UserDto;
 import com.f1soft.sces.entities.User;
 import com.f1soft.sces.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +24,21 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-     return authService.login(loginRequest);
+    return authService.login(loginRequest);
   }
-
 
   @PostMapping("/signup")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
-    User newUser = userService.registerUser(signupRequest);
+  public ResponseEntity<User> signup(@RequestBody UserDto userDto) {
+    User newUser = userService.registerUser(userDto);
     return ResponseEntity.ok(newUser);
   }
 
   @PostMapping("/change-password")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+  public ResponseEntity<?> changePassword(
+      @RequestBody ChangePasswordRequest changePasswordRequest) {
     return userService.changePassword(changePasswordRequest);
   }
+
 }

@@ -14,7 +14,7 @@ public class AuditLogServiceImpl implements AuditLogService {
   private final AuditLogRepository auditLogRepository;
 
   @Override
-  public void log(User user, String action, String entityName, String entityId) {
+  public void log(User user, String action, String entityName, Long entityId) {
 //    LocalDateTime now = LocalDateTime.now();
 //    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 //    String formattedDate = now.format(formatter);

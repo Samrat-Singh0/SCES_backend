@@ -1,6 +1,6 @@
 package com.f1soft.sces.service;
 
-import com.f1soft.sces.dto.PasswordPolicyDto;
+import com.f1soft.sces.dto.PasswordPolicyRequest;
 import com.f1soft.sces.dto.PasswordPolicyResponse;
 import com.f1soft.sces.entities.PasswordPolicy;
 import com.f1soft.sces.mapper.PasswordPolicyMapper;
@@ -38,10 +38,10 @@ public class PasswordPolicyServiceImpl implements PasswordPolicyService {
   }
 
   @Override
-  public List<PasswordPolicy> updatePolicies(List<PasswordPolicyDto> policies) {
+  public List<PasswordPolicy> updatePolicies(List<PasswordPolicyRequest> policies) {
     List<PasswordPolicy> updated = new ArrayList<>();
 
-    for(PasswordPolicyDto policyDto : policies) {
+    for(PasswordPolicyRequest policyDto : policies) {
       PasswordPolicy policy = passwordPolicyRepository.findByPolicyCode(policyDto.getPolicy_code())
           .orElseThrow(() -> new RuntimeException("Policy code not found"));
 

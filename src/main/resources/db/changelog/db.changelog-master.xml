@@ -180,4 +180,63 @@
     </createTable>
   </changeSet>
 
+  <changeSet id="2025-06-04-add-unique-to-phone-number-in-user" author="Samrat Singh">
+    <addUniqueConstraint tableName="user" columnNames="phone_number"/>
+  </changeSet>
+
+  <changeSet id="2025-06-04-add-status-in-user" author="Samrat Singh">
+    <addColumn tableName="user">
+      <column name="status" type="varchar(7)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="drop-audit-log-table" author="Samrat Singh">
+    <dropTable tableName="audit_log"/>
+  </changeSet>
+
+  <changeSet id="2025-06-04-recreate-audit-log-table" author="SamratSingh">
+    <createTable tableName="audit_log">
+      <column name="audit_id" type="bigint">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints nullable="false" foreignKeyName="fk_audit_user" referencedTableName="user"
+          referencedColumnNames="id"/>
+      </column>
+      <column name="action" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="entity_name" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="entity_id" type="bigint">
+        <constraints nullable="true"/>
+      </column>
+      <column name="action_time" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="details" type="VARCHAR(1000)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-06-04-add-auto-increment-audit-id" author="Samrat Singh">
+    <addAutoIncrement tableName="audit_log" columnName="audit_id" columnDataType="BIGINT"/>
+  </changeSet>
+
+  <changeSet id="2025-06-05-set-default-constraint-to-must-change-password" author="Samrat Singh">
+    <addDefaultValue tableName="user" columnName="must_change_password" defaultValueBoolean="true"/>
+  </changeSet>
+
+  <changeSet id="2025-06-05-reset-default-constraint-to-status-in-user" author="Samrat Singh">
+    <addDefaultValue tableName="user" columnName="status" defaultValue="ACTIVE"/>
+  </changeSet>
+
+  <changeSet id="2025-06-05-increase-status-value-length-in-user" author="Samrat Singh">
+    <modifyDataType tableName="user" columnName="status" newDataType="varchar(10)"/>
+  </changeSet>
+
 </databaseChangeLog>
