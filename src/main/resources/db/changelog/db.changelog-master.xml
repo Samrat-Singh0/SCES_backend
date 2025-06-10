@@ -239,4 +239,98 @@
     <modifyDataType tableName="user" columnName="status" newDataType="varchar(10)"/>
   </changeSet>
 
+  <changeSet id="2025-06-09-add-column-start-date-in-semester" author="Samrat Singh">
+    <addColumn tableName="semester">
+      <column name="semester_start_date" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="semester_end_date" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-06-09-drop-column-start-date-in-semester" author="Samrat Singh">
+    <dropColumn tableName="semester" columnName="semester_start_date"/>
+  </changeSet>
+
+  <changeSet id="2025-06-09-drop-column-end-date-in-semester" author="Samrat Singh">
+    <dropColumn tableName="semester" columnName="semester_end_date"/>
+  </changeSet>
+
+  <changeSet id="2025-06-09-recreate-column-start-and-end-date-in-semester" author="Samrat Singh">
+    <addColumn tableName="semester">
+      <column name="semester_start_date" type="DATE" defaultValue="2025-06-01">
+        <constraints nullable="false"/>
+      </column>
+      <column name="semester_end_date" type="DATE" defaultValue="2025-06-01">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-06-09-add-unique-constraint-to-label-in-semester" author="Samrat Singh">
+    <addUniqueConstraint tableName="semester" columnNames="label"/>
+  </changeSet>
+
+  <changeSet id="2025-06-09-drop-table-course" author="Samrat Singh">
+    <dropTable tableName="course"/>
+  </changeSet>
+
+  <changeSet id="2025-06-09-drop-table-semester" author="Samrat Singh">
+    <dropTable tableName="semester"/>
+  </changeSet>
+
+  <changeSet id="2025-06-09-recreate-semester-table" author="SamratSingh">
+    <createTable tableName="semester">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="label" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="fee" type="DECIMAL(19,2)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="start_date" type="date" defaultValue="2025-06-01">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_date" type="date" defaultValue="2025-06-01">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-06-09-recreate-course-table" author="SamratSingh">
+    <createTable tableName="course">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="credit_hours" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="full_marks" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instructor_id" type="bigint">
+        <constraints nullable="false" foreignKeyName="fk_course_instructor"
+          referencedTableName="instructor" referencedColumnNames="instructor_id"/>
+      </column>
+      <column name="semester_id" type="bigint">
+        <constraints nullable="false" foreignKeyName="fk_course_semester"
+          referencedTableName="semester" referencedColumnNames="id"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-06-09-add-course-code-column" author="Samrat Singh">
+    <addColumn tableName="course">
+      <column name="code" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

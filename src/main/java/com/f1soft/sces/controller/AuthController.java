@@ -3,8 +3,7 @@ package com.f1soft.sces.controller;
 import com.f1soft.sces.auth.AuthService;
 import com.f1soft.sces.dto.ChangePasswordRequest;
 import com.f1soft.sces.dto.LoginRequest;
-import com.f1soft.sces.dto.UserDto;
-import com.f1soft.sces.entities.User;
+import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +22,13 @@ public class AuthController {
   private final UserService userService;
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<ResponseDto> login(@RequestBody LoginRequest loginRequest) {
     return authService.login(loginRequest);
-  }
-
-  @PostMapping("/signup")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ResponseEntity<User> signup(@RequestBody UserDto userDto) {
-    User newUser = userService.registerUser(userDto);
-    return ResponseEntity.ok(newUser);
   }
 
   @PostMapping("/change-password")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ResponseEntity<?> changePassword(
+  public ResponseEntity<ResponseDto> changePassword(
       @RequestBody ChangePasswordRequest changePasswordRequest) {
     return userService.changePassword(changePasswordRequest);
   }

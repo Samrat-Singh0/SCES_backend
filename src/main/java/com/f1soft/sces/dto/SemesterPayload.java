@@ -1,6 +1,7 @@
 package com.f1soft.sces.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SemesterDto {
+public class SemesterPayload {
+
   private String label;
-  private BigDecimal semesterFee;
+  private BigDecimal fee;
+  private LocalDate startDate;
+  private LocalDate endDate;
 }

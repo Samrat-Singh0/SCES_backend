@@ -1,4 +1,4 @@
-package com.f1soft.sces.model;
+package com.f1soft.sces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FilterUser {
+public class ResponseDto {
 
-  private String fullName;
-  private String role;
-  private String phoneNumber;
+  private boolean success;
+  private String message;
+  private Object body;
 }

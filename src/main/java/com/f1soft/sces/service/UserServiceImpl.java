@@ -1,7 +1,10 @@
 package com.f1soft.sces.service;
 
+import com.f1soft.sces.UserSpecification;
+import com.f1soft.sces.builder.UserBuilder;
 import com.f1soft.sces.dto.ChangePasswordRequest;
-import com.f1soft.sces.dto.UserDto;
+import com.f1soft.sces.dto.ResponseDto;
+import com.f1soft.sces.dto.UserRequestPayload;
 import com.f1soft.sces.entities.Instructor;
 import com.f1soft.sces.entities.Student;
 import com.f1soft.sces.entities.User;
@@ -12,11 +15,16 @@ import com.f1soft.sces.model.FilterUser;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.repository.UserRepository;
+import com.f1soft.sces.util.ResponseBuilder;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,41 +45,48 @@ public class UserServiceImpl implements UserService {
   private final EmailService emailService;
 
   @Override
-  public List<UserDto> getActiveUsers() {
+  public ResponseEntity<ResponseDto> getActiveUsers() {
     List<User> users = userRepository.findAllByStatus(Status.ACTIVE);
-    return UserMapper.INSTANCE.toUserDtoList(users);
+    if (users.isEmpty()) {
+      return ResponseBuilder.getFailedMessage("No active users found");
+    }
+    List<UserRequestPayload> userRequestPayload = UserMapper.INSTANCE.toUserDtoList(users);
+    return ResponseBuilder.success("Fetch users successfully", userRequestPayload);
+  }
+
+  @Override
+  public ResponseEntity<ResponseDto> getActiveUsers(Pageable pageable) {
+    Page<User> users = userRepository.findAllByStatus(Status.ACTIVE, pageable);
+    Page<UserRequestPayload> userRequestPayloads = UserMapper.INSTANCE.toUserDtoPage(users);
+    return ResponseBuilder.success("Fetched Users Successfully", userRequestPayloads);
   }
 
   @Override
   @Transactional
-  public User registerUser(UserDto userDto) {
-    if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-      throw new IllegalArgumentException("Email already in use");
+  public ResponseEntity<ResponseDto> registerUser(UserRequestPayload userRequestPayload) {
+    Optional<User> user = userRepository.findByEmail(userRequestPayload.getEmail());
+    if (user.isPresent()) {
+      return ResponseBuilder.getFailedMessage("Email already in use");
     }
 
-    User user = UserMapper.INSTANCE.toUser(userDto);
     String password = generateRandomPassword();
+    User newUser = UserBuilder.buildUserForAdd(userRequestPayload, password);
+    userRepository.save(newUser);
 
-    user.setUserCode(generateUserCode());
-    user.setPassword(password);
-    user.setMustChangePassword(true);
-    user.setStatus(Status.ACTIVE);
-
-    User savedUser = userRepository.save(user);
-
-    Object userRoleEntity = userRoleEntityFactoryImpl.createRoleEntity(savedUser);
+    Object userRoleEntity = userRoleEntityFactoryImpl.createRoleEntity(newUser);
     if (userRoleEntity instanceof Student student) {                                      //conditional entry of data in different tables
       studentRepository.save(student);
     } else if (userRoleEntity instanceof Instructor instructor) {
       instructorRepository.save(instructor);
     }
 
-    User loggedInUser = getLoggedUserId();
-    auditLogService.log(loggedInUser, "Signed Up", "User", user.getId());             //log the event.
+    User loggedInUser = getLoggedUserId(); // move this method to common class
+    auditLogService.log(loggedInUser, "Signed Up", "User",
+        newUser.getId());             //log the event.
 
-    sendEmail(userDto.getEmail(), password);
-
-    return userRepository.save(user);
+    sendEmail(userRequestPayload.getEmail(), password);
+    userRepository.save(newUser);
+    return ResponseBuilder.success("New User Added.", null);
   }
 
   @Override
@@ -81,39 +96,71 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void deleteUser(String userCode) {
-    User user = userRepository.findByUserCode(userCode).orElseThrow(() -> new UsernameNotFoundException("User not found with code: " + userCode));
-    user.setStatus(Status.INACTIVE);
-    userRepository.save(user);
+  public ResponseEntity<ResponseDto> deleteUser(String userCode) {
+    Optional<User> optionalUser = userRepository.findByUserCode(userCode);
+    if (optionalUser.isPresent()) {
+      User user = optionalUser.get();
+      user.setStatus(Status.INACTIVE);
+      userRepository.save(user);
+      return ResponseBuilder.success("User deleted.", null);
+    } else {
+      return ResponseBuilder.getFailedMessage("User not found.");
+    }
   }
 
   @Override
-  public String updateUser(UserDto userDto) {
-    try{
-      User user = userRepository.findByUserCode(userDto.getUserCode()).orElseThrow(() -> new UsernameNotFoundException("User not found with code: " + userDto.getUserCode()));
-      user.setEmail(userDto.getEmail());
-      user.setAddress(userDto.getAddress());
-      user.setPhoneNumber(userDto.getPhoneNumber());
-      user.setRole(Role.valueOf(userDto.getRole()));
+  public ResponseEntity<ResponseDto> updateUser(UserRequestPayload userRequestPayload) {
+    try {
+      Optional<User> optionalUser = userRepository.findByUserCode(userRequestPayload.getUserCode());
+      User user;
+      if (optionalUser.isEmpty()) {
+        return ResponseBuilder.getFailedMessage("User not found.");
+      }
+      user = optionalUser.get();
+      user.setEmail(userRequestPayload.getEmail());
+      user.setAddress(userRequestPayload.getAddress());
+      user.setPhoneNumber(userRequestPayload.getPhoneNumber());
+      user.setRole(Role.valueOf(userRequestPayload.getRole()));
 
       userRepository.save(user);
-      return "Successfully updated";
-    }catch (Exception e){
-      return ("Update Failed: " + e.getMessage());
+      return ResponseBuilder.success("User Updated.", null);
+    } catch (Exception e) {
+      return ResponseBuilder.getFailedMessage(e.getMessage());
     }
 
   }
 
   @Override
-  public List<UserDto> getUserBySearchText(FilterUser filterCriteria) {
-    return userRepository.findUserBySearchText(filterCriteria).stream().map(UserMapper.INSTANCE::toUserDto).collect(
-        Collectors.toList());
+  public ResponseEntity<ResponseDto> getUserBySearchText(
+      FilterUser filterCriteria) {
+    try {
+      List<UserRequestPayload> users;
+      List<User> userList = userRepository.findAllByStatus(Status.ACTIVE);
+
+      if (userList.isEmpty()) {
+        return ResponseBuilder.getFailedMessage("No any active users");
+      }
+
+      if (filterCriteria.getFullName() == null && filterCriteria.getRole() == null
+          && filterCriteria.getPhoneNumber() == null) {
+        users = UserMapper.INSTANCE.toUserDtoList(userList);
+        return ResponseBuilder.success("Fetched User Successfully", users);
+      }
+
+      Specification<User> specification = UserSpecification.buildSpec(filterCriteria);
+
+      users = userRepository.findAll(specification).stream()
+          .map(UserMapper.INSTANCE::toUserDto)
+          .collect(Collectors.toList());
+
+      return ResponseBuilder.success("Fetched User Successfully", users);
+
+    } catch (Exception e) {
+      return ResponseBuilder.getFailedMessage(e.getMessage());
+    }
   }
 
-  @Override
-  public String generateUserCode() {
-    return "USR-" + System.currentTimeMillis();
-  }
+
   public String generateRandomPassword() {
     return passwordEncoder.encode(UUID.randomUUID().toString());
   }
@@ -135,22 +182,28 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordRequest) {
-    User user = userRepository.findByEmail(changePasswordRequest.getEmail())
-        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + changePasswordRequest.getEmail()));
+  public ResponseEntity<ResponseDto> changePassword(
+      ChangePasswordRequest changePasswordRequest) {
+    Optional<User> optionalUser = userRepository.findByEmail(changePasswordRequest.getEmail());
+    if (optionalUser.isEmpty()) {
+      return ResponseBuilder.getFailedMessage("User not found.");
+    }
 
+    User user = optionalUser.get();
     user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
     user.setMustChangePassword(false);
     userRepository.save(user);
 
-    return ResponseEntity.ok().build();
+    return ResponseBuilder.success("Updated User Details Successfully.", null);
   }
 
   public User getLoggedUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if(authentication == null || !authentication.isAuthenticated()) {
+    if (authentication == null || !authentication.isAuthenticated()) {
       return null;
     }
-    return userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + authentication.getName()));
+    return userRepository.findByEmail(authentication.getName()).orElseThrow(
+        () -> new UsernameNotFoundException(
+            "User not found with email: " + authentication.getName()));
   }
 }

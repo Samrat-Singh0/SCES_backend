@@ -20,17 +20,20 @@ import lombok.NoArgsConstructor;
 public class Course {
 
   @Id
-  @GeneratedValue(strategy= GenerationType.IDENTITY)
-  private long courseId;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-  @Column(unique=true, nullable=false)
-  private String courseName;
+  @Column(nullable = false, unique = true)
+  private String code;
 
-  @Column(nullable=false)
+  @Column(unique = true, nullable = false)
+  private String name;
+
+  @Column(nullable = false)
   private int creditHours;
 
-  @Column(nullable=false)
-  private int courseFullMarks;
+  @Column(nullable = false)
+  private int fullMarks;
 
   @ManyToOne
   @JoinColumn(name = "semester_id")

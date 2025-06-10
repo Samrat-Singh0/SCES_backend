@@ -3,10 +3,12 @@ package com.f1soft.sces.auth;
 import com.f1soft.sces.auth.jwt.JwtUtil;
 import com.f1soft.sces.dto.LoginRequest;
 import com.f1soft.sces.dto.LoginUserResponse;
+import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.entities.User;
 import com.f1soft.sces.security.CustomUserDetailService;
 import com.f1soft.sces.service.AuditLogService;
 import com.f1soft.sces.service.UserService;
+import com.f1soft.sces.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,13 +29,14 @@ public class AuthServiceImpl implements AuthService {
   private final UserService userService;
   private final AuditLogService auditLogService;
 
-  public ResponseEntity<?> login(LoginRequest loginRequest) {
+  public ResponseEntity<ResponseDto> login(LoginRequest loginRequest) {
     try {
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
               loginRequest.getPassword()));
 
-      final UserDetails userDetails = customUserDetailService.loadUserByUsername(loginRequest.getEmail());
+      final UserDetails userDetails = customUserDetailService.loadUserByUsername(
+          loginRequest.getEmail());
       final String jwt = jwtUtil.generateToken(userDetails);
 
       User user = userService.findUserByEmail(loginRequest.getEmail());
@@ -46,14 +49,16 @@ public class AuthServiceImpl implements AuthService {
           .build();
 
       auditLogService.log(user, "Logged-In", "", null);
-      System.out.println(jwt);
+
+      ResponseDto responseBody = new ResponseDto(true, "Logged-In",
+          loginUserResponse);
 
       return ResponseEntity.ok()
           .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
-          .body(loginUserResponse);
+          .body(responseBody);
 
-    }catch(BadCredentialsException e){
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+    } catch (BadCredentialsException e) {
+      return ResponseBuilder.error(HttpStatus.UNAUTHORIZED, "Invalid email or password");
     }
   }
 }
