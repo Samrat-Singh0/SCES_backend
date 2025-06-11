@@ -15,6 +15,7 @@ import com.f1soft.sces.model.FilterUser;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.repository.UserRepository;
+import com.f1soft.sces.util.CommonBeanUtility;
 import com.f1soft.sces.util.ResponseBuilder;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -26,8 +27,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,6 +42,7 @@ public class UserServiceImpl implements UserService {
   private final InstructorRepository instructorRepository;
   private final AuditLogService auditLogService;
   private final EmailService emailService;
+  private final CommonBeanUtility commonBeanUtility;
 
   @Override
   public ResponseEntity<ResponseDto> getActiveUsers() {
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
       instructorRepository.save(instructor);
     }
 
-    User loggedInUser = getLoggedUserId(); // move this method to common class
+    User loggedInUser = commonBeanUtility.getLoggedUserId();
     auditLogService.log(loggedInUser, "Signed Up", "User",
         newUser.getId());             //log the event.
 
@@ -197,13 +197,5 @@ public class UserServiceImpl implements UserService {
     return ResponseBuilder.success("Updated User Details Successfully.", null);
   }
 
-  public User getLoggedUserId() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
-      return null;
-    }
-    return userRepository.findByEmail(authentication.getName()).orElseThrow(
-        () -> new UsernameNotFoundException(
-            "User not found with email: " + authentication.getName()));
-  }
+
 }

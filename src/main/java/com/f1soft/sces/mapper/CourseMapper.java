@@ -1,6 +1,6 @@
 package com.f1soft.sces.mapper;
 
-import com.f1soft.sces.dto.CourseResponsePayload;
+import com.f1soft.sces.dto.CoursePayload;
 import com.f1soft.sces.entities.Course;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -11,10 +11,12 @@ public interface CourseMapper {
 
   CourseMapper INSTANCE = Mappers.getMapper(CourseMapper.class);
 
-  CourseResponsePayload courseToCourseResponsePayload(Course course);
+  Course toCourse(CoursePayload payload);
 
-  List<CourseResponsePayload> toCourseResponsePayloadList(List<Course> courseList);
+  CoursePayload toCoursePayload(Course course);
 
-  Course courseResponsePayloadToCourse(CourseResponsePayload courseResponsePayload);
+  List<CoursePayload> toCoursePayloadList(List<Course> courseList);
+
+  Course courseResponsePayloadToCourse(CoursePayload coursePayload);
 
 }

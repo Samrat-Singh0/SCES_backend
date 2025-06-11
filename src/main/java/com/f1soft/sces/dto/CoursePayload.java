@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseResponsePayload {
+public class CoursePayload {
 
   private String name;
   private int creditHours;

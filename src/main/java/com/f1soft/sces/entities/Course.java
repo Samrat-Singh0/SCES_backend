@@ -1,5 +1,6 @@
 package com.f1soft.sces.entities;
 
+import com.f1soft.sces.util.CommonUtility;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,7 +25,7 @@ public class Course {
   private long id;
 
   @Column(nullable = false, unique = true)
-  private String code;
+  private String code = CommonUtility.generateCourseCode("CR-");
 
   @Column(unique = true, nullable = false)
   private String name;
@@ -42,4 +43,5 @@ public class Course {
   @ManyToOne
   @JoinColumn(name = "instructor_id")
   private Instructor instructor;
+
 }

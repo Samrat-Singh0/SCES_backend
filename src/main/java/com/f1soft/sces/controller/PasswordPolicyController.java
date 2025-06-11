@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/super-admin/password-policy")
+@RequestMapping("/api/super/password")
 @RequiredArgsConstructor
 public class PasswordPolicyController {
 
   private final PasswordPolicyService passwordPolicyService;
 
-  @GetMapping("/getAllPolicy")
+  @GetMapping("/list")
   public ResponseEntity<List<PasswordPolicyResponse>> getAllPasswordPolicy() {
     List<PasswordPolicyResponse> activePolicies = passwordPolicyService.getAllPolicies();
     return ResponseEntity.ok(activePolicies);
