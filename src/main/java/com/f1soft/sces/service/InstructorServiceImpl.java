@@ -2,7 +2,7 @@ package com.f1soft.sces.service;
 
 import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.entities.Instructor;
-import com.f1soft.sces.enums.Status;
+import com.f1soft.sces.enums.ActiveStatus;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.UserRepository;
 import com.f1soft.sces.util.ResponseBuilder;
@@ -30,7 +30,7 @@ public class InstructorServiceImpl implements InstructorService {
       List<Instructor> activeInstructors = new ArrayList<>();
 
       for (Instructor instructor : instructors) {       //todo: use stream
-        if (instructor.getUser().getStatus() == Status.ACTIVE) {
+        if (instructor.getUser().getActiveStatus() == ActiveStatus.ACTIVE) {
           activeInstructors.add(instructor);
         }
       }

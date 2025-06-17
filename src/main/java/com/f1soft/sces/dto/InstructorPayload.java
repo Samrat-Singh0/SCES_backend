@@ -1,6 +1,5 @@
 package com.f1soft.sces.dto;
 
-import com.f1soft.sces.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InstructorPayload {
 
-  String instructorCode;
-  User user;
+  String code;
+  UserRequestPayload user;
 }

@@ -1,7 +1,7 @@
 package com.f1soft.sces.repository;
 
 import com.f1soft.sces.entities.User;
-import com.f1soft.sces.enums.Status;
+import com.f1soft.sces.enums.ActiveStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -13,13 +13,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-  Page<User> findAllByStatus(Status status, Pageable pageable);
+  Page<User> findAllByActiveStatus(ActiveStatus activeStatus, Pageable pageable);
 
-  List<User> findAllByStatus(Status status);
+  List<User> findAllByActiveStatus(ActiveStatus activeStatus);
 
   Optional<User> findByEmail(String email);
 
-  Optional<User> findByUserCode(String userCode);
+  User findByCode(String userCode);
 
 
 }

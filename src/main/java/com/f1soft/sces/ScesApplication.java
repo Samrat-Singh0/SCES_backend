@@ -10,8 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @EnableWebSecurity
 public class ScesApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ScesApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(ScesApplication.class, args);
 
+  }
 }

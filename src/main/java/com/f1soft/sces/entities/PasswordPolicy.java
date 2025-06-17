@@ -19,10 +19,10 @@ public class PasswordPolicy {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long passwordPolicyId;
+  private long id;
 
-  @Column(nullable = false,unique = true, name="policy_code")
-  private String policyCode;
+  @Column(nullable = false, unique = true, name = "code")
+  private String code;
 
   @Column(nullable = false)
   private String parameters;

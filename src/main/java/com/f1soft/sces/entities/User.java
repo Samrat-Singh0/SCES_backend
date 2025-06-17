@@ -1,7 +1,7 @@
 package com.f1soft.sces.entities;
 
+import com.f1soft.sces.enums.ActiveStatus;
 import com.f1soft.sces.enums.Role;
-import com.f1soft.sces.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,10 +26,15 @@ public class User {
   private Long id;
 
   @Column(unique = true, nullable = false)
-  private String userCode;
+  private String code;
 
   @Column(nullable = false)
-  private String fullName;
+  private String firstName;
+
+  private String middleName;
+
+  @Column(nullable = false)
+  private String lastName;
 
   @Column(unique = true, nullable = false)
   private String email;
@@ -47,10 +52,12 @@ public class User {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @Column(name="must_change_password",nullable = false)
+  @Column(name = "must_change_password", nullable = false)
   private boolean mustChangePassword;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private Status status;
+  private ActiveStatus activeStatus;
+
+  private String remarks;
 }

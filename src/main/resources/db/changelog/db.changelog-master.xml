@@ -5,19 +5,25 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       https://www.liquibase.org/xml/ns/dbchangeLog/dbchangeLog-3.8.xsd">
 
-  <changeSet id="2025-05-36-add-user-table" author="SamratSingh">
+  <changeSet id="2025-06-12-create-user-table" author="Samrat Singh">
     <createTable tableName="user">
-      <column name="id" type="bigint" autoIncrement="true">
+      <column name="id" type="BIGINT" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="user_code" type="VARCHAR(255)">
-        <constraints unique="true" nullable="false"/>
+      <column name="code" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
       </column>
-      <column name="full_name" type="VARCHAR(255)">
+      <column name="first_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="middle_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_name" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
       <column name="email" type="VARCHAR(255)">
-        <constraints unique="true" nullable="false"/>
+        <constraints nullable="false" unique="true"/>
       </column>
       <column name="password" type="VARCHAR(255)">
         <constraints nullable="false"/>
@@ -26,311 +32,256 @@
         <constraints nullable="false"/>
       </column>
       <column name="phone_number" type="VARCHAR(20)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="role" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="role" type="VARCHAR(50)"/>
-    </createTable>
-  </changeSet>
-
-  <changeSet id="2025-05-36-add-semester-table" author="SamratSingh">
-    <createTable tableName="semester">
-      <column name="semester_id" type="bigint" autoIncrement="true">
-        <constraints primaryKey="true" nullable="true"/>
-      </column>
-      <column name="label" type="VARCHAR(255)">
+      <column name="must_change_password" type="BOOLEAN">
         <constraints nullable="false"/>
       </column>
-      <column name="semester_fee" type="DECIMAL(19,2)">
+      <column name="active_status" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
     </createTable>
   </changeSet>
 
-  <changeSet id="2025-05-36-add-instructor-table" author="SamratSingh">
-    <createTable tableName="instructor">
-      <column name="instructor_id" type="bigint" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
-      </column>
-      <column name="user_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_instructor_user" referencedTableName="user"
-          referencedColumnNames="id"/>
-      </column>
-    </createTable>
-  </changeSet>
-
-  <changeSet id="2025-05-36-add-course-table" author="SamratSingh">
-    <createTable tableName="course">
-      <column name="course_id" type="bigint" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
-      </column>
-      <column name="course_name" type="VARCHAR(255)">
-        <constraints unique="true" nullable="false"/>
-      </column>
-      <column name="credit_hours" type="int">
-        <constraints nullable="false"/>
-      </column>
-      <column name="course_full_marks" type="int">
-        <constraints nullable="false"/>
-      </column>
-      <column name="instructor_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_course_instructor"
-          referencedTableName="instructor" referencedColumnNames="instructor_id"/>
-      </column>
-      <column name="semester_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_course_semester"
-          referencedTableName="semester" referencedColumnNames="semester_id"/>
-      </column>
-    </createTable>
-  </changeSet>
-
-  <changeSet id="2025-05-36-add-student-table" author="SamratSingh">
+  <changeSet id="2025-06-12-create-student-table" author="Samrat Singh">
     <createTable tableName="student">
-      <column name="student_id" type="bigint" autoIncrement="true">
+      <column name="id" type="BIGINT" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="status" type="VARCHAR(100)">
+      <column name="code" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="enroll_status" type="VARCHAR(50)">
         <constraints nullable="false"/>
       </column>
-      <column name="user_id" type="bigint">
+      <column name="user_id" type="BIGINT">
         <constraints nullable="false" foreignKeyName="fk_student_user" referencedTableName="user"
           referencedColumnNames="id"/>
       </column>
     </createTable>
   </changeSet>
 
-  <changeSet id="2025-05-26-add-audit-log-table" author="SamratSingh">
-    <createTable tableName="audit_log">
-      <column name="audit_id" type="bigint">
+  <changeSet id="2025-06-12-create-instructor-table" author="Samrat Singh">
+    <createTable tableName="instructor">
+      <column name="id" type="BIGINT" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="user_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_audit_user" referencedTableName="user"
-          referencedColumnNames="id"/>
-      </column>
-      <column name="action" type="VARCHAR(255)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="entity_name" type="VARCHAR(100)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="entity_id" type="bigint">
-        <constraints nullable="true"/>
-      </column>
-      <column name="action_time" type="timestamp">
-        <constraints nullable="false"/>
-      </column>
-      <column name="details" type="VARCHAR(1000)">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-  </changeSet>
-
-  <changeSet id="2025-05-27-remove-not-null-entityName-" author="Samrat Singh">
-    <dropNotNullConstraint tableName="audit_log" columnName="entity_name"
-      columnDataType="VARCHAR(255)"/>
-  </changeSet>
-
-  <changeSet id="2025-05-27-add-auto-increment-audit-id" author="Samrat Singh">
-    <addAutoIncrement tableName="audit_log" columnName="audit_id" columnDataType="BIGINT"/>
-  </changeSet>
-
-  <changeSet id="2025-05-27-add-refresh-token-table-new" author="Samrat Singh">
-    <createTable tableName="refresh_token">
-      <column name="refresh_id" type="BIGINT" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
-      </column>
-      <column name="user_id" type="bigint">
-        <constraints foreignKeyName="fk_refresh_user" referencedTableName="user"
-          referencedColumnNames="id"/>
-      </column>
-      <column name="refresh_token" type="VARCHAR(255)">
-        <constraints unique="true" nullable="false"/>
-      </column>
-      <column name="expires_at" type="timestamp">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-  </changeSet>
-
-  <changeSet id="2025-06-01-add-must-change-password-column-in-user" author="Samrat Singh">
-    <addColumn tableName="user">
-      <column name="must_change_password" type="boolean" defaultValueBoolean="true">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-  </changeSet>
-
-  <changeSet id="2025-06-01-add-password-policy-table" author="Samrat Singh">
-    <createTable tableName="password_policy">
-      <column name="password_policy_id" type="BIGINT" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
-      </column>
-      <column name="policy_code" type="VARCHAR(100)">
+      <column name="code" type="VARCHAR(255)">
         <constraints nullable="false" unique="true"/>
       </column>
-      <column name="parameters" type="VARCHAR(500)">
+      <column name="user_id" type="BIGINT">
+        <constraints nullable="false" foreignKeyName="fk_instructor_user" referencedTableName="user"
+          referencedColumnNames="id"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-06-12-create-semester-table" author="Samrat Singh">
+    <createTable tableName="semester">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="label" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+
+      <column name="fee" type="DECIMAL(19,2)">
         <constraints nullable="false"/>
       </column>
-      <column name="regex" type="VARCHAR(200)">
+
+      <column name="start_date" type="DATE">
         <constraints nullable="false"/>
       </column>
+
+      <column name="end_date" type="DATE">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-06-12-create-course-table" author="Samrat Singh">
+    <createTable tableName="course">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="code" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+
+      <column name="name" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+
+      <column name="credit_hours" type="INT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="full_marks" type="INT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="semester_id" type="BIGINT">
+        <constraints nullable="false" foreignKeyName="fk_course_semester"
+          referencedTableName="semester" referencedColumnNames="id"/>
+      </column>
+
+      <column name="instructor_id" type="BIGINT">
+        <constraints nullable="false" foreignKeyName="fk_course_instructor"
+          referencedTableName="instructor" referencedColumnNames="id"/>
+      </column>
+
+      <column name="checked" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-06-12-create-password-policy-table" author="Samrat Singh">
+    <createTable tableName="password_policy">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="code" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+
+      <column name="parameters" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="regex" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+
       <column name="active" type="BOOLEAN">
         <constraints nullable="false"/>
       </column>
     </createTable>
   </changeSet>
 
-  <changeSet id="2025-06-04-add-unique-to-phone-number-in-user" author="Samrat Singh">
-    <addUniqueConstraint tableName="user" columnNames="phone_number"/>
-  </changeSet>
-
-  <changeSet id="2025-06-04-add-status-in-user" author="Samrat Singh">
-    <addColumn tableName="user">
-      <column name="status" type="varchar(7)">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-  </changeSet>
-
-  <changeSet id="drop-audit-log-table" author="Samrat Singh">
-    <dropTable tableName="audit_log"/>
-  </changeSet>
-
-  <changeSet id="2025-06-04-recreate-audit-log-table" author="SamratSingh">
+  <changeSet id="2025-06-12-create-audit-log-table" author="Samrat Singh">
     <createTable tableName="audit_log">
-      <column name="audit_id" type="bigint">
+      <column name="id" type="BIGINT" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="user_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_audit_user" referencedTableName="user"
-          referencedColumnNames="id"/>
+
+      <column name="user_id" type="BIGINT">
+        <constraints nullable="false"/>
       </column>
+
       <column name="action" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="entity_name" type="VARCHAR(100)">
+
+      <column name="entity_name" type="VARCHAR(255)"/>
+
+      <column name="entity_id" type="BIGINT"/>
+
+      <column name="action_time" type="TIMESTAMP">
         <constraints nullable="false"/>
       </column>
-      <column name="entity_id" type="bigint">
-        <constraints nullable="true"/>
-      </column>
-      <column name="action_time" type="timestamp">
-        <constraints nullable="false"/>
-      </column>
+
       <column name="details" type="VARCHAR(1000)">
         <constraints nullable="false"/>
       </column>
     </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="audit_log"
+      baseColumnNames="user_id"
+      referencedTableName="user"
+      referencedColumnNames="id"
+      constraintName="fk_audit_log_user"/>
   </changeSet>
 
-  <changeSet id="2025-06-04-add-auto-increment-audit-id" author="Samrat Singh">
-    <addAutoIncrement tableName="audit_log" columnName="audit_id" columnDataType="BIGINT"/>
-  </changeSet>
-
-  <changeSet id="2025-06-05-set-default-constraint-to-must-change-password" author="Samrat Singh">
-    <addDefaultValue tableName="user" columnName="must_change_password" defaultValueBoolean="true"/>
-  </changeSet>
-
-  <changeSet id="2025-06-05-reset-default-constraint-to-status-in-user" author="Samrat Singh">
-    <addDefaultValue tableName="user" columnName="status" defaultValue="ACTIVE"/>
-  </changeSet>
-
-  <changeSet id="2025-06-05-increase-status-value-length-in-user" author="Samrat Singh">
-    <modifyDataType tableName="user" columnName="status" newDataType="varchar(10)"/>
-  </changeSet>
-
-  <changeSet id="2025-06-09-add-column-start-date-in-semester" author="Samrat Singh">
-    <addColumn tableName="semester">
-      <column name="semester_start_date" type="timestamp">
-        <constraints nullable="false"/>
-      </column>
-      <column name="semester_end_date" type="timestamp">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-  </changeSet>
-
-  <changeSet id="2025-06-09-drop-column-start-date-in-semester" author="Samrat Singh">
-    <dropColumn tableName="semester" columnName="semester_start_date"/>
-  </changeSet>
-
-  <changeSet id="2025-06-09-drop-column-end-date-in-semester" author="Samrat Singh">
-    <dropColumn tableName="semester" columnName="semester_end_date"/>
-  </changeSet>
-
-  <changeSet id="2025-06-09-recreate-column-start-and-end-date-in-semester" author="Samrat Singh">
-    <addColumn tableName="semester">
-      <column name="semester_start_date" type="DATE" defaultValue="2025-06-01">
-        <constraints nullable="false"/>
-      </column>
-      <column name="semester_end_date" type="DATE" defaultValue="2025-06-01">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-  </changeSet>
-
-  <changeSet id="2025-06-09-add-unique-constraint-to-label-in-semester" author="Samrat Singh">
-    <addUniqueConstraint tableName="semester" columnNames="label"/>
-  </changeSet>
-
-  <changeSet id="2025-06-09-drop-table-course" author="Samrat Singh">
-    <dropTable tableName="course"/>
-  </changeSet>
-
-  <changeSet id="2025-06-09-drop-table-semester" author="Samrat Singh">
-    <dropTable tableName="semester"/>
-  </changeSet>
-
-  <changeSet id="2025-06-09-recreate-semester-table" author="SamratSingh">
-    <createTable tableName="semester">
+  <changeSet id="2025-06-15-add-enrollment-table" author="Samrat Singh">
+    <createTable tableName="enrollment">
       <column name="id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="label" type="VARCHAR(255)">
-        <constraints nullable="false" unique="true"/>
-      </column>
-      <column name="fee" type="DECIMAL(19,2)">
-        <constraints nullable="false"/>
-      </column>
-      <column name="start_date" type="date" defaultValue="2025-06-01">
-        <constraints nullable="false"/>
-      </column>
-      <column name="end_date" type="date" defaultValue="2025-06-01">
-        <constraints nullable="false"/>
-      </column>
-    </createTable>
-  </changeSet>
 
-  <changeSet id="2025-06-09-recreate-course-table" author="SamratSingh">
-    <createTable tableName="course">
-      <column name="id" type="bigint" autoIncrement="true">
-        <constraints primaryKey="true" nullable="false"/>
+      <column name="student_id" type="bigint">
+        <constraints nullable="false" foreignKeyName="fk_enrollment_student"
+          referencedTableName="student" referencedColumnNames="id"/>
       </column>
-      <column name="name" type="VARCHAR(255)">
-        <constraints unique="true" nullable="false"/>
-      </column>
-      <column name="credit_hours" type="int">
-        <constraints nullable="false"/>
-      </column>
-      <column name="full_marks" type="int">
-        <constraints nullable="false"/>
-      </column>
-      <column name="instructor_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_course_instructor"
-          referencedTableName="instructor" referencedColumnNames="instructor_id"/>
-      </column>
+
       <column name="semester_id" type="bigint">
-        <constraints nullable="false" foreignKeyName="fk_course_semester"
+        <constraints nullable="false" foreignKeyName="fk_enrollment_semester"
           referencedTableName="semester" referencedColumnNames="id"/>
       </column>
+
+      <column name="enrolled_date" type="date">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="completion_date" type="date">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="completion_status" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="outstanding_fee" type="decimal(19,2)">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
   </changeSet>
 
-  <changeSet id="2025-06-09-add-course-code-column" author="Samrat Singh">
-    <addColumn tableName="course">
+  <changeSet id="2025-06-15-add-code-in-enrollment" author="Samrat Singh">
+    <addColumn tableName="enrollment">
       <column name="code" type="varchar(255)">
         <constraints nullable="false" unique="true"/>
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet id="2025-06-15-make-completion-date-nullable" author="Samrat Singh">
+    <dropNotNullConstraint tableName="enrollment" columnName="completion_date"
+      columnDataType="date"/>
+  </changeSet>
+
+  <changeSet id="2025-06-16-re-create-enrollment-course" author="Samrat Singh">
+    <createTable tableName="enrollment_course">
+      <column name="enrollment_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="course_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey tableName="enrollment_course" columnNames="enrollment_id, course_id"
+      constraintName="pk_enrollment_course"/>
+
+    <addForeignKeyConstraint baseTableName="enrollment_course" baseColumnNames="enrollment_id"
+      constraintName="fk_enrollment_course_enrollment"
+      referencedTableName="enrollment" referencedColumnNames="id" onDelete="CASCADE"/>
+
+    <addForeignKeyConstraint baseTableName="enrollment_course" baseColumnNames="course_id"
+      constraintName="fk_enrollment_course_course"
+      referencedTableName="course" referencedColumnNames="id" onDelete="CASCADE"/>
+  </changeSet>
+
+  <changeSet id="2025-06-16-add-column-paid-status-in-enrollment" author="Samrat Singh">
+    <addColumn tableName="enrollment">
+      <column name="paid_status" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-06-17-add-column-remarks-in-user" author="Samrat Singh">
+    <addColumn tableName="user">
+      <column name="remarks" type="varchar(500)">
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

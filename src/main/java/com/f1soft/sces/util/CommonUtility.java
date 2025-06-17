@@ -14,13 +14,25 @@ public class CommonUtility {
     return prefix + System.currentTimeMillis();
   }
 
-  public static String generateCourseCode(String prefix) {
+  public static String generateCode(String prefix) {
     StringBuilder code = new StringBuilder(code_length);
     for (int i = 0; i < code_length; i++) {
       int index = RANDOM.nextInt(CHAR_POOL.length());
       code.append(CHAR_POOL.charAt(index));
     }
+    code = new StringBuilder(prefix + code);
     return code.toString();
+  }
+
+  public String getFullName(String firstName, String middleName, String lastName) {
+    StringBuilder fullName = new StringBuilder(firstName);
+
+    if (middleName != null && !middleName.trim().isEmpty()) {
+      fullName.append(" ").append(middleName);
+    }
+
+    fullName.append(" ").append(lastName);
+    return fullName.toString();
   }
 
 }

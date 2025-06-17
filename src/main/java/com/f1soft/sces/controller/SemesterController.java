@@ -30,7 +30,7 @@ public class SemesterController {
   }
 
   @GetMapping("/list")
-  @PreAuthorize("hasRole(@securityRoles.SUPER)")
+//  @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getAll() {
     return semesterService.getAllSemesters();
   }

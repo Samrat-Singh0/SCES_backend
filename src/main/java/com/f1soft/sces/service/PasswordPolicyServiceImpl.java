@@ -2,54 +2,51 @@ package com.f1soft.sces.service;
 
 import com.f1soft.sces.dto.PasswordPolicyRequest;
 import com.f1soft.sces.dto.PasswordPolicyResponse;
+import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.entities.PasswordPolicy;
 import com.f1soft.sces.mapper.PasswordPolicyMapper;
 import com.f1soft.sces.repository.PasswordPolicyRepository;
-import java.util.ArrayList;
+import com.f1soft.sces.util.ResponseBuilder;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class PasswordPolicyServiceImpl implements PasswordPolicyService {
+
   private final PasswordPolicyRepository passwordPolicyRepository;
 
   @Override
-  public List<PasswordPolicyResponse> getAllPolicies() {
+  public ResponseEntity<ResponseDto> getAllPolicies() {
     PasswordPolicyMapper mapper = new PasswordPolicyMapper();
-
-    return mapper.toDto(passwordPolicyRepository.findAll());
+    List<PasswordPolicyResponse> passwordPolicyDto = mapper.toDto(
+        passwordPolicyRepository.findAll());
+    return ResponseBuilder.success("Fetched Policies Successfully", passwordPolicyDto);
   }
 
   @Override
-  public List<PasswordPolicyResponse> getActivePolicies() {
-    Optional<List<PasswordPolicy>> activePolicies = passwordPolicyRepository.findByActiveTrue();
-
-    if (activePolicies.isPresent()) {
-      List<PasswordPolicy> policies = activePolicies.get();
-      PasswordPolicyMapper mapper = new PasswordPolicyMapper();
-      return mapper.toDto(policies);
-    }
-    else{
-      return new ArrayList<>();
-    }
+  public ResponseEntity<ResponseDto> getActivePolicies() {
+    List<PasswordPolicy> activePolicies = passwordPolicyRepository.findByActiveTrue();
+    PasswordPolicyMapper mapper = new PasswordPolicyMapper();
+    List<PasswordPolicyResponse> passwordPolicyDto = mapper.toDto(activePolicies);
+    return ResponseBuilder.success("Fetched Policies Successfully", passwordPolicyDto);
   }
 
   @Override
-  public List<PasswordPolicy> updatePolicies(List<PasswordPolicyRequest> policies) {
-    List<PasswordPolicy> updated = new ArrayList<>();
+  public ResponseEntity<ResponseDto> updatePolicies(List<PasswordPolicyRequest> policies) {
 
-    for(PasswordPolicyRequest policyDto : policies) {
-      PasswordPolicy policy = passwordPolicyRepository.findByPolicyCode(policyDto.getPolicy_code())
-          .orElseThrow(() -> new RuntimeException("Policy code not found"));
+    policies.forEach(updatedPolicy -> {
+      Optional<PasswordPolicy> policy = passwordPolicyRepository.findByCode(
+          updatedPolicy.getCode());
+      if (policy.isPresent()) {
+        policy.get().setActive(updatedPolicy.isActive());
+        passwordPolicyRepository.save(policy.get());
+      }
+    });
 
-      policy.setActive(policyDto.isActive());
-
-      updated.add(passwordPolicyRepository.save(policy));
-    }
-
-    return updated;
+    return ResponseBuilder.success("Update Successful", null);
   }
 }

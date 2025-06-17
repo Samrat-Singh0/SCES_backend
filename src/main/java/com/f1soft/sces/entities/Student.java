@@ -1,7 +1,10 @@
 package com.f1soft.sces.entities;
 
+import com.f1soft.sces.enums.EnrollStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,13 +24,14 @@ public class Student {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long studentId;
+  private long id;
 
   @Column(unique = true, nullable = false)
-  private String studentCode;
+  private String code;
 
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String status;
+  private EnrollStatus enrollStatus;
 
   @OneToOne
   @JoinColumn(name = "user_id")

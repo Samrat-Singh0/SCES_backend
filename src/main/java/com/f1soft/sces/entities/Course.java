@@ -1,8 +1,10 @@
 package com.f1soft.sces.entities;
 
-import com.f1soft.sces.util.CommonUtility;
+import com.f1soft.sces.enums.Checked;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +27,7 @@ public class Course {
   private long id;
 
   @Column(nullable = false, unique = true)
-  private String code = CommonUtility.generateCourseCode("CR-");
+  private String code;
 
   @Column(unique = true, nullable = false)
   private String name;
@@ -43,5 +45,9 @@ public class Course {
   @ManyToOne
   @JoinColumn(name = "instructor_id")
   private Instructor instructor;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Checked checked;
 
 }

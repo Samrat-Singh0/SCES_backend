@@ -1,7 +1,10 @@
 package com.f1soft.sces.entities;
 
+import com.f1soft.sces.enums.AuditAction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,14 +28,15 @@ public class AuditLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long audit_id;
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   @Column(nullable = false)
-  private String action;
+  @Enumerated(EnumType.STRING)
+  private AuditAction action;
 
   private String entityName;
 

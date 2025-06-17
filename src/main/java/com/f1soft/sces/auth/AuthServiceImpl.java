@@ -5,13 +5,14 @@ import com.f1soft.sces.dto.LoginRequest;
 import com.f1soft.sces.dto.LoginUserResponse;
 import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.entities.User;
+import com.f1soft.sces.enums.ActiveStatus;
+import com.f1soft.sces.enums.AuditAction;
 import com.f1soft.sces.security.CustomUserDetailService;
 import com.f1soft.sces.service.AuditLogService;
 import com.f1soft.sces.service.UserService;
 import com.f1soft.sces.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -41,14 +42,20 @@ public class AuthServiceImpl implements AuthService {
 
       User user = userService.findUserByEmail(loginRequest.getEmail());
 
+      if (user.getActiveStatus().equals(ActiveStatus.INACTIVE)) {
+        return ResponseBuilder.getFailedMessage("Your account is inactive");
+      }
+
       LoginUserResponse loginUserResponse = LoginUserResponse.builder()
           .email(user.getEmail())
-          .fullName(user.getFullName())
+          .firstName(user.getFirstName())
+          .middleName(user.getMiddleName())
+          .lastName(user.getLastName())
           .role(user.getRole().name())
           .mustChangePassword(user.isMustChangePassword())
           .build();
 
-      auditLogService.log(user, "Logged-In", "", null);
+      auditLogService.log(user, AuditAction.LOGGED_IN, "", null);
 
       ResponseDto responseBody = new ResponseDto(true, "Logged-In",
           loginUserResponse);
@@ -58,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
           .body(responseBody);
 
     } catch (BadCredentialsException e) {
-      return ResponseBuilder.error(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+      return ResponseBuilder.getFailedMessage(e.getMessage());
     }
   }
 }

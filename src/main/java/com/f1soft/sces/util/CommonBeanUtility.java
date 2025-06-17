@@ -14,7 +14,7 @@ public class CommonBeanUtility {
 
   private final UserRepository userRepository;
 
-  public User getLoggedUserId() {
+  public User getLoggedInUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) {
       return null;
@@ -23,4 +23,9 @@ public class CommonBeanUtility {
         () -> new UsernameNotFoundException(
             "User not found with email: " + authentication.getName()));
   }
+
+//  public Student setStatusEnrolled(Student student) {
+//    student.setEnrollStatus(EnrollStatus.ENROLLED);
+//    return student;
+//  }
 }

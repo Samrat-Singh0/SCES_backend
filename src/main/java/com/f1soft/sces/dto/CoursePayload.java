@@ -1,7 +1,6 @@
 package com.f1soft.sces.dto;
 
-import com.f1soft.sces.entities.Instructor;
-import com.f1soft.sces.entities.Semester;
+import com.f1soft.sces.enums.Checked;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,9 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CoursePayload {
 
+  private String code;
   private String name;
   private int creditHours;
   private int fullMarks;
-  private Semester semester;
-  private Instructor instructor;
+  private SemesterPayload semester;
+  private InstructorPayload instructor;
+  private UserRequestPayload addedBy;
+  private Checked checked;
 }

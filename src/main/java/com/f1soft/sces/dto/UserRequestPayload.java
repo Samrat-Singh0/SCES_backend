@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserRequestPayload {
 
-  private String userCode;
-  private String fullName;
+  private String code;
+  private String firstName;
+  private String middleName;
+  private String lastName;
   private String email;
   private String address;
   private String phoneNumber;

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class PasswordPolicyRequest {
-  String policy_code;
+
+  String code;
   boolean active;
 }

@@ -1,6 +1,5 @@
 package com.f1soft.sces.service;
 
-import com.f1soft.sces.UserSpecification;
 import com.f1soft.sces.builder.UserBuilder;
 import com.f1soft.sces.dto.ChangePasswordRequest;
 import com.f1soft.sces.dto.ResponseDto;
@@ -8,13 +7,14 @@ import com.f1soft.sces.dto.UserRequestPayload;
 import com.f1soft.sces.entities.Instructor;
 import com.f1soft.sces.entities.Student;
 import com.f1soft.sces.entities.User;
-import com.f1soft.sces.enums.Role;
-import com.f1soft.sces.enums.Status;
+import com.f1soft.sces.enums.ActiveStatus;
+import com.f1soft.sces.enums.AuditAction;
 import com.f1soft.sces.mapper.UserMapper;
 import com.f1soft.sces.model.FilterUser;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.repository.UserRepository;
+import com.f1soft.sces.specification.UserSpecification;
 import com.f1soft.sces.util.CommonBeanUtility;
 import com.f1soft.sces.util.ResponseBuilder;
 import jakarta.transaction.Transactional;
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity<ResponseDto> getActiveUsers() {
-    List<User> users = userRepository.findAllByStatus(Status.ACTIVE);
+    List<User> users = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
     if (users.isEmpty()) {
       return ResponseBuilder.getFailedMessage("No active users found");
     }
@@ -56,9 +56,10 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity<ResponseDto> getActiveUsers(Pageable pageable) {
-    Page<User> users = userRepository.findAllByStatus(Status.ACTIVE, pageable);
-    Page<UserRequestPayload> userRequestPayloads = UserMapper.INSTANCE.toUserDtoPage(users);
-    return ResponseBuilder.success("Fetched Users Successfully", userRequestPayloads);
+    Page<User> userPage = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE, pageable);
+    Page<UserRequestPayload> userRequestPayloadPage = UserMapper.INSTANCE.toUserDtoPage(userPage);
+
+    return ResponseBuilder.success("Fetched Users Successfully", userRequestPayloadPage);
   }
 
   @Override
@@ -80,12 +81,12 @@ public class UserServiceImpl implements UserService {
       instructorRepository.save(instructor);
     }
 
-    User loggedInUser = commonBeanUtility.getLoggedUserId();
-    auditLogService.log(loggedInUser, "Signed Up", "User",
+    User loggedInUser = commonBeanUtility.getLoggedInUser();
+    auditLogService.log(loggedInUser, AuditAction.SIGNED_UP, "User",
         newUser.getId());             //log the event.
 
     sendEmail(userRequestPayload.getEmail(), password);
-    userRepository.save(newUser);
+//    userRepository.save(newUser);
     return ResponseBuilder.success("New User Added.", null);
   }
 
@@ -97,30 +98,17 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity<ResponseDto> deleteUser(String userCode) {
-    Optional<User> optionalUser = userRepository.findByUserCode(userCode);
-    if (optionalUser.isPresent()) {
-      User user = optionalUser.get();
-      user.setStatus(Status.INACTIVE);
-      userRepository.save(user);
-      return ResponseBuilder.success("User deleted.", null);
-    } else {
-      return ResponseBuilder.getFailedMessage("User not found.");
-    }
+    User user = userRepository.findByCode(userCode);
+    user.setActiveStatus(ActiveStatus.INACTIVE);
+    userRepository.save(user);
+    return ResponseBuilder.success("User deleted.", null);
   }
 
   @Override
   public ResponseEntity<ResponseDto> updateUser(UserRequestPayload userRequestPayload) {
     try {
-      Optional<User> optionalUser = userRepository.findByUserCode(userRequestPayload.getUserCode());
-      User user;
-      if (optionalUser.isEmpty()) {
-        return ResponseBuilder.getFailedMessage("User not found.");
-      }
-      user = optionalUser.get();
-      user.setEmail(userRequestPayload.getEmail());
-      user.setAddress(userRequestPayload.getAddress());
-      user.setPhoneNumber(userRequestPayload.getPhoneNumber());
-      user.setRole(Role.valueOf(userRequestPayload.getRole()));
+      User user = userRepository.findByCode(userRequestPayload.getCode());
+      UserMapper.INSTANCE.updateUser(userRequestPayload, user);
 
       userRepository.save(user);
       return ResponseBuilder.success("User Updated.", null);
@@ -135,13 +123,14 @@ public class UserServiceImpl implements UserService {
       FilterUser filterCriteria) {
     try {
       List<UserRequestPayload> users;
-      List<User> userList = userRepository.findAllByStatus(Status.ACTIVE);
+      List<User> userList = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
 
       if (userList.isEmpty()) {
         return ResponseBuilder.getFailedMessage("No any active users");
       }
 
-      if (filterCriteria.getFullName() == null && filterCriteria.getRole() == null
+      if (filterCriteria.getFirstName() == null && filterCriteria.getMiddleName() == null
+          && filterCriteria.getLastName() == null && filterCriteria.getRole() == null
           && filterCriteria.getPhoneNumber() == null) {
         users = UserMapper.INSTANCE.toUserDtoList(userList);
         return ResponseBuilder.success("Fetched User Successfully", users);
@@ -161,7 +150,7 @@ public class UserServiceImpl implements UserService {
   }
 
 
-  public String generateRandomPassword() {
+  private String generateRandomPassword() {
     return passwordEncoder.encode(UUID.randomUUID().toString());
   }
 
@@ -196,6 +185,4 @@ public class UserServiceImpl implements UserService {
 
     return ResponseBuilder.success("Updated User Details Successfully.", null);
   }
-
-
 }

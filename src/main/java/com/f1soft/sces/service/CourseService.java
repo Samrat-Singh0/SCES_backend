@@ -2,12 +2,23 @@ package com.f1soft.sces.service;
 
 import com.f1soft.sces.dto.CoursePayload;
 import com.f1soft.sces.dto.ResponseDto;
+import com.f1soft.sces.model.FilterCourse;
 import org.springframework.http.ResponseEntity;
 
 public interface CourseService {
 
+  ResponseEntity<ResponseDto> getCourse(String code);
+
   ResponseEntity<ResponseDto> getAllCourses();
 
+  ResponseEntity<ResponseDto> getPendingCourses();
+
   ResponseEntity<ResponseDto> addCourse(CoursePayload payload);
+
+  ResponseEntity<ResponseDto> deleteCourse(String code);
+
+  ResponseEntity<ResponseDto> updateCourse(CoursePayload payload);
+
+  ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCriteria);
 
 }

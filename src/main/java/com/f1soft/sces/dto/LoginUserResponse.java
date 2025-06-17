@@ -10,8 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginUserResponse {
+
   private String role;
   private String email;
-  private String fullName;
+  private String firstName;
+  private String middleName;
+  private String lastName;
   private Boolean mustChangePassword;
 }

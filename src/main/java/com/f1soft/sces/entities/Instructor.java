@@ -17,13 +17,12 @@ public class Instructor {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonIgnore
-  private long instructorId;
+  private long id;
 
   @Column(unique = true, nullable = false)
-  private String instructorCode;
+  private String code;
 
   @OneToOne
   @JoinColumn(name = "user_id")
   private User user;
-
 }

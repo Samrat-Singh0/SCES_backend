@@ -1,12 +1,15 @@
 package com.f1soft.sces.service;
 
 import com.f1soft.sces.dto.PasswordPolicyRequest;
-import com.f1soft.sces.dto.PasswordPolicyResponse;
-import com.f1soft.sces.entities.PasswordPolicy;
+import com.f1soft.sces.dto.ResponseDto;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 public interface PasswordPolicyService {
-  List<PasswordPolicyResponse> getAllPolicies();
-  List<PasswordPolicyResponse> getActivePolicies();
-  List<PasswordPolicy> updatePolicies(List<PasswordPolicyRequest> policies);
+
+  ResponseEntity<ResponseDto> getAllPolicies();
+
+  ResponseEntity<ResponseDto> getActivePolicies();
+
+  ResponseEntity<ResponseDto> updatePolicies(List<PasswordPolicyRequest> policies);
 }

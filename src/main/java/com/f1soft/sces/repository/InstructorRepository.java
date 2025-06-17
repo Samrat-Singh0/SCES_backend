@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InstructorRepository extends JpaRepository<Instructor, Long> {
 
-  Optional<Instructor> findByInstructorCode(String instructorCode);
+  Optional<Instructor> findByCode(String instructorCode);
 }

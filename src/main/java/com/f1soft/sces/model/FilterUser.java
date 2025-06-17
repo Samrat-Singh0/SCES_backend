@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FilterUser {
 
-  private String fullName;
+  private String firstName;
+  private String middleName;
+  private String lastName;
   private String role;
   private String phoneNumber;
 }

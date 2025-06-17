@@ -6,11 +6,10 @@ import com.f1soft.sces.model.FilterUser;
 import com.f1soft.sces.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,35 +23,37 @@ public class UserController {
 
   private final UserService userService;
 
-  @GetMapping("/pageList")
+  @GetMapping("/paged")
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getActiveUsers(
-      Pageable pageable
+      @PageableDefault(size = 10) Pageable pageable
   ) {
     return userService.getActiveUsers(pageable);
   }
 
   @GetMapping("/list")
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getActiveUsers() {
     return userService.getActiveUsers();
   }
 
   @PostMapping("/add")
-  @PreAuthorize("hasRole('SUPER_ADMIN')") // todo: use constant
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> addUser(
       @RequestBody UserRequestPayload userRequestPayload) {
     return userService.registerUser(userRequestPayload);
   }
 
   @PutMapping("/update")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> updateUser(
       @RequestBody UserRequestPayload userRequestPayload) {
     return userService.updateUser(userRequestPayload);
   }
 
-  @DeleteMapping("/delete/{code}")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ResponseEntity<ResponseDto> deleteUser(@PathVariable String code) {
+  @PostMapping("/delete")
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
+  public ResponseEntity<ResponseDto> deleteUser(@RequestBody String code) {
     return userService.deleteUser(code);
   }
 

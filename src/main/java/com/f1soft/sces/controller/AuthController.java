@@ -7,7 +7,6 @@ import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +26,6 @@ public class AuthController {
   }
 
   @PostMapping("/change-password")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ResponseEntity<ResponseDto> changePassword(
       @RequestBody ChangePasswordRequest changePasswordRequest) {
     return userService.changePassword(changePasswordRequest);

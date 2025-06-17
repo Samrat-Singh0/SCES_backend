@@ -10,9 +10,9 @@ public class PasswordPolicyMapper {
   public List<PasswordPolicyResponse> toDto(List<PasswordPolicy> passwordPolicy) {
     List<PasswordPolicyResponse> passwordPolicyDto = new ArrayList<>();
 
-    for(PasswordPolicy policy : passwordPolicy) {
+    for (PasswordPolicy policy : passwordPolicy) {
       PasswordPolicyResponse passwordPolicyResponse = new PasswordPolicyResponse();
-      passwordPolicyResponse.setPolicy_code(policy.getPolicyCode());
+      passwordPolicyResponse.setCode(policy.getCode());
       passwordPolicyResponse.setParameters(policy.getParameters());
       passwordPolicyResponse.setRegex(policy.getRegex());
       passwordPolicyResponse.setActive(policy.getActive());
