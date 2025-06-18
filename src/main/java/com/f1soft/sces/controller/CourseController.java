@@ -7,7 +7,6 @@ import com.f1soft.sces.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,16 +38,22 @@ public class CourseController {
     return courseService.getPendingCourses();
   }
 
+  @GetMapping("/list/role")
+  public ResponseEntity<ResponseDto> getCourseRoles() {
+    return courseService.getCourseOnRoles();
+  }
+
   @PostMapping("/add")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> addCourse(@RequestBody CoursePayload course) {
     return courseService.addCourse(course);
   }
 
-  @DeleteMapping("/delete/{code}")
+  @PostMapping("/delete/{code}")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> deleteCourse(@PathVariable String code) {
-    return courseService.deleteCourse(code);
+  public ResponseEntity<ResponseDto> deleteCourse(@PathVariable String code,
+      @RequestBody String remarks) {
+    return courseService.deleteCourse(code, remarks);
   }
 
   @PostMapping("/update")

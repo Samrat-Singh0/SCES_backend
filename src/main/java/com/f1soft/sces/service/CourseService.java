@@ -13,9 +13,11 @@ public interface CourseService {
 
   ResponseEntity<ResponseDto> getPendingCourses();
 
+  ResponseEntity<ResponseDto> getCourseOnRoles();
+
   ResponseEntity<ResponseDto> addCourse(CoursePayload payload);
 
-  ResponseEntity<ResponseDto> deleteCourse(String code);
+  ResponseEntity<ResponseDto> deleteCourse(String code, String remarks);
 
   ResponseEntity<ResponseDto> updateCourse(CoursePayload payload);
 

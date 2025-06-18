@@ -6,6 +6,7 @@ import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,12 @@ public class EnrollmentController {
     return enrollmentService.getEnrollments();
   }
 
+  @GetMapping("/list/pending")
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
+  public ResponseEntity<ResponseDto> getPendingEnrollmentList() {
+    return enrollmentService.getPendingEnrollments();
+  }
+
   @PostMapping("/enroll")
   public ResponseEntity<ResponseDto> addEnrollment(@RequestBody EnrollmentPayload payload) {
     return enrollmentService.addEnrollment(payload);
@@ -33,5 +40,5 @@ public class EnrollmentController {
   public ResponseEntity<ResponseDto> update(@RequestBody EnrollmentResponsePayload payload) {
     return enrollmentService.update(payload);
   }
-  
+
 }

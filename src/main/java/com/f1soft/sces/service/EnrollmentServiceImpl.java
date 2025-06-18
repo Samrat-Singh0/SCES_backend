@@ -21,6 +21,7 @@ import com.f1soft.sces.repository.SemesterRepository;
 import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.util.CommonBeanUtility;
 import com.f1soft.sces.util.ResponseBuilder;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Student student = studentRepository.findByUser(user);
         enrollments = enrollmentRepository.findEnrollmentForStudent(student.getId());
       } else {
-        enrollments = enrollmentRepository.findAll();
+        enrollments = enrollmentRepository.findByCompletionStatusNot(CompletionStatus.PENDING);
       }
       List<EnrollmentResponsePayload> responsePayloads = EnrollmentMapper.INSTANCE.toResponsePayloads(
           enrollments);
@@ -62,7 +63,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
   @Override
   public ResponseEntity<ResponseDto> getPendingEnrollments() {
-    return null;
+    List<Enrollment> pendingEnrollments = enrollmentRepository.findByCompletionStatus(
+        CompletionStatus.PENDING);
+
+    return ResponseBuilder.success("Fetched Enrollments Successfully",
+        EnrollmentMapper.INSTANCE.toResponsePayloads(pendingEnrollments));
   }
 
   @Override
@@ -83,10 +88,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return ResponseBuilder.getFailedMessage("Student Not Found");
       }
 
-      Enrollment existingEnrollment = enrollmentRepository.findByStudent_idAndCompletionStatus(
+      Enrollment existingEnrollmentRunning = enrollmentRepository.findByStudent_idAndCompletionStatus(
           student.getId(),
           CompletionStatus.RUNNING);
-      if (existingEnrollment != null) {
+      if (existingEnrollmentRunning != null) {
         return ResponseBuilder.getFailedMessage(
             "You are currently enrolled to an existing course.");
       }
@@ -98,8 +103,12 @@ public class EnrollmentServiceImpl implements EnrollmentService {
       }
       enrollment.setCourses(courses);
 
-      student.setEnrollStatus(EnrollStatus.ENROLLED);
-      studentRepository.save(student);
+      List<Enrollment> existingEnrollment = enrollmentRepository.findAllByStudent_Id(
+          student.getId());           //student may not be new
+      if (existingEnrollment == null) {
+        student.setEnrollStatus(EnrollStatus.NEW);
+        studentRepository.save(student);
+      }
 
       enrollmentRepository.save(EnrollmentBuilder.build(enrollment, semester.get(), student));
 
@@ -112,6 +121,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   }
 
   @Override
+  @Transactional
   public ResponseEntity<ResponseDto> update(EnrollmentResponsePayload payload) {
     try {
       Enrollment existingEnrollment = enrollmentRepository.findByCode(
@@ -119,8 +129,27 @@ public class EnrollmentServiceImpl implements EnrollmentService {
       if (existingEnrollment == null) {
         return ResponseBuilder.getFailedMessage("Enrollment Not Found");
       }
-      
+
+      if (payload.getCompletionStatus().equals(CompletionStatus.COMPLETED)) {
+        existingEnrollment.setCompletionDate(LocalDate.now());
+      }
+
       existingEnrollment.setCompletionStatus(payload.getCompletionStatus());
+
+      if (payload.getCompletionStatus().equals(
+          CompletionStatus.RUNNING)) {                                                        //yedi update pending lai accept gareko ho vaye update student ko enrollStatus as well.
+        Student student = studentRepository.findByCode(payload.getStudent().getCode());
+        student.setEnrollStatus(EnrollStatus.ENROLLED);
+        studentRepository.save(student);
+        existingEnrollment.setStudent(student);
+      }
+
+      if (payload.getCompletionStatus().equals(CompletionStatus.REJECTED)) {
+        Student student = studentRepository.findByCode(payload.getStudent().getCode());
+        student.setEnrollStatus(EnrollStatus.REJECTED);
+        studentRepository.save(student);
+        existingEnrollment.setStudent(student);
+      }
 
       enrollmentRepository.save(existingEnrollment);
 

@@ -284,4 +284,56 @@
     </addColumn>
   </changeSet>
 
+  <changeSet id="2025-06-18-add-column-active-status-and-remarks-in-course" author="Samrat Singh">
+    <addColumn tableName="course">
+      <column name="active_status" type="varchar(25)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="remarks" type="varchar(500)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-06-18-add-table-grade" author="Samrat Singh">
+    <createTable tableName="grade">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="student_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="course_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="enrollment_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="grade" type="DECIMAL(5,2)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="grade"
+      baseColumnNames="student_id"
+      constraintName="fk_grade_student"
+      referencedTableName="student"
+      referencedColumnNames="id"/>
+
+    <addForeignKeyConstraint
+      baseTableName="grade"
+      baseColumnNames="course_id"
+      constraintName="fk_grade_course"
+      referencedTableName="course"
+      referencedColumnNames="id"/>
+
+    <addForeignKeyConstraint baseTableName="grade"
+      baseColumnNames="enrollment_id"
+      constraintName="fk_grade_enrollment"
+      referencedTableName="enrollment"
+      referencedColumnNames="id"/>
+
+  </changeSet>
 </databaseChangeLog>

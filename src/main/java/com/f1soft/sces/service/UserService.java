@@ -18,7 +18,7 @@ public interface UserService {
 
   User findUserByEmail(String email);
 
-  ResponseEntity<ResponseDto> deleteUser(String userCode);
+  ResponseEntity<ResponseDto> deleteUser(String code, String remarks);
 
   ResponseEntity<ResponseDto> updateUser(UserRequestPayload userRequestPayload);
 

@@ -5,9 +5,12 @@ import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.entities.Course;
 import com.f1soft.sces.entities.Instructor;
 import com.f1soft.sces.entities.Semester;
+import com.f1soft.sces.entities.Student;
 import com.f1soft.sces.entities.User;
+import com.f1soft.sces.enums.ActiveStatus;
 import com.f1soft.sces.enums.AuditAction;
 import com.f1soft.sces.enums.Checked;
+import com.f1soft.sces.enums.Role;
 import com.f1soft.sces.mapper.CourseMapper;
 import com.f1soft.sces.mapper.UserMapper;
 import com.f1soft.sces.model.FilterCourse;
@@ -15,6 +18,7 @@ import com.f1soft.sces.repository.AuditLogRepository;
 import com.f1soft.sces.repository.CourseRepository;
 import com.f1soft.sces.repository.InstructorRepository;
 import com.f1soft.sces.repository.SemesterRepository;
+import com.f1soft.sces.repository.StudentRepository;
 import com.f1soft.sces.specification.CourseSpecification;
 import com.f1soft.sces.util.CommonBeanUtility;
 import com.f1soft.sces.util.CommonUtility;
@@ -39,6 +43,7 @@ public class CourseServiceImpl implements CourseService {
   private final CommonBeanUtility commonBeanUtility;
   private final CommonBeanUtility commonUtility;
   private final AuditLogRepository auditLogRepository;
+  private final StudentRepository studentRepository;
 
   @Override
   public ResponseEntity<ResponseDto> getCourse(String code) {
@@ -54,7 +59,8 @@ public class CourseServiceImpl implements CourseService {
   @Override
   public ResponseEntity<ResponseDto> getAllCourses() {
     try {
-      List<Course> courses = courseRepository.findByChecked(Checked.CHECKED);
+      List<Course> courses = courseRepository.findByCheckedAndActiveStatus(Checked.CHECKED,
+          ActiveStatus.ACTIVE);
       if (courses.isEmpty()) {
         return ResponseBuilder.getFailedMessage("No courses found");
       } else {
@@ -84,6 +90,25 @@ public class CourseServiceImpl implements CourseService {
   }
 
   @Override
+  public ResponseEntity<ResponseDto> getCourseOnRoles() {
+    try {
+      User currentUser = commonUtility.getLoggedInUser();
+
+      if (currentUser.getRole().equals(Role.INSTRUCTOR)) {
+        Instructor instructor = instructorRepository.findByUser(currentUser);
+        List<Course> courses = courseRepository.findByInstructor(instructor);
+        return ResponseBuilder.success("Fetched Courses Successfully", courses);
+      } else {
+        Student student = studentRepository.findByUser(currentUser);
+        List<Course> courses = courseRepository.fetchCourseForStudent(student.getId());
+        return ResponseBuilder.success("Fetched Courses Successfully", courses);
+      }
+    } catch (Exception e) {
+      return ResponseBuilder.getFailedMessage(e.getMessage());
+    }
+  }
+
+  @Override
   public ResponseEntity<ResponseDto> addCourse(CoursePayload coursePayload) {
     try {
       Course course = CourseMapper.INSTANCE.toCourse(coursePayload);
@@ -106,11 +131,12 @@ public class CourseServiceImpl implements CourseService {
       course.setSemester(semester);
       course.setInstructor(instructor);
       course.setChecked(Checked.PENDING);
+      course.setActiveStatus(ActiveStatus.ACTIVE);
 
-      Course savedCourse = courseRepository.save(course);
+      courseRepository.save(course);
 
       auditLogService.log(commonBeanUtility.getLoggedInUser(), AuditAction.CREATED, "Course",
-          savedCourse.getId());
+          course.getId());
 
       return ResponseBuilder.success("Course Added Successfully", null);
     } catch (Exception e) {
@@ -119,12 +145,16 @@ public class CourseServiceImpl implements CourseService {
   }
 
   @Override
-  public ResponseEntity<ResponseDto> deleteCourse(String code) {
+  public ResponseEntity<ResponseDto> deleteCourse(String code, String remarks) {
     Course course = courseRepository.findByCode(code);
     if (course == null) {
       return ResponseBuilder.getFailedMessage("Course Not Found");
     }
-    courseRepository.deleteById(course.getId());
+//    courseRepository.deleteById(course.getId());
+
+    course.setActiveStatus(ActiveStatus.INACTIVE);
+    course.setRemarks(remarks);
+    courseRepository.save(course);
 
     User loggedInUser = commonBeanUtility.getLoggedInUser();
     auditLogService.log(loggedInUser, AuditAction.DELETED, "Course", course.getId());

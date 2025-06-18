@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 public class SecurityRoles {
 
   public final String SUPER = "SUPER_ADMIN";
-  public final String ADMIN = "ADMIN";
-  public final String USER = "USER";
+  public final String INSTRUCTOR = "INSTRUCTOR";
+  public final String STUDENT = "STUDENT";
 }

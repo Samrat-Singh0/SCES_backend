@@ -1,5 +1,6 @@
 package com.f1soft.sces.entities;
 
+import com.f1soft.sces.enums.ActiveStatus;
 import com.f1soft.sces.enums.Checked;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,5 +50,11 @@ public class Course {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Checked checked;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ActiveStatus activeStatus;
+
+  private String remarks;
 
 }

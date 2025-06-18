@@ -97,9 +97,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public ResponseEntity<ResponseDto> deleteUser(String userCode) {
-    User user = userRepository.findByCode(userCode);
+  public ResponseEntity<ResponseDto> deleteUser(String code, String remarks) {
+    User user = userRepository.findByCode(code);
+
+    if (user == null) {
+      return ResponseBuilder.getFailedMessage("User not found");
+    }
+
     user.setActiveStatus(ActiveStatus.INACTIVE);
+    user.setRemarks(remarks);
     userRepository.save(user);
     return ResponseBuilder.success("User deleted.", null);
   }
@@ -129,12 +135,12 @@ public class UserServiceImpl implements UserService {
         return ResponseBuilder.getFailedMessage("No any active users");
       }
 
-      if (filterCriteria.getFirstName() == null && filterCriteria.getMiddleName() == null
-          && filterCriteria.getLastName() == null && filterCriteria.getRole() == null
-          && filterCriteria.getPhoneNumber() == null) {
-        users = UserMapper.INSTANCE.toUserDtoList(userList);
-        return ResponseBuilder.success("Fetched User Successfully", users);
-      }
+//      if (filterCriteria.getFirstName() == null && filterCriteria.getMiddleName() == null
+//          && filterCriteria.getLastName() == null && filterCriteria.getRole() == null
+//          && filterCriteria.getPhoneNumber() == null) {
+//        users = UserMapper.INSTANCE.toUserDtoList(userList);
+//        return ResponseBuilder.success("Fetched User Successfully", users);
+//      }
 
       Specification<User> specification = UserSpecification.buildSpec(filterCriteria);
 

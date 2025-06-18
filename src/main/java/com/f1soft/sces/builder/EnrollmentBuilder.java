@@ -18,7 +18,7 @@ public class EnrollmentBuilder {
     enrollment.setStudent(student);
     enrollment.setEnrolledDate(LocalDate.now());
     enrollment.setCompletionDate(null);
-    enrollment.setCompletionStatus(CompletionStatus.RUNNING);
+    enrollment.setCompletionStatus(CompletionStatus.PENDING);
     enrollment.setPaidStatus(PaidStatus.UNPAID);
     enrollment.setOutstandingFee(semester.getFee());
 //    enrollment.setCourses(enrollment.getCourses());

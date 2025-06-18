@@ -10,6 +10,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,10 +52,11 @@ public class UserController {
     return userService.updateUser(userRequestPayload);
   }
 
-  @PostMapping("/delete")
+  @PostMapping("/delete/{code}")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> deleteUser(@RequestBody String code) {
-    return userService.deleteUser(code);
+  public ResponseEntity<ResponseDto> deleteUser(@PathVariable String code,
+      @RequestBody String remarks) {
+    return userService.deleteUser(code, remarks);
   }
 
   @PostMapping("/search")
