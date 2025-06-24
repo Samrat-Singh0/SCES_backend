@@ -2,12 +2,13 @@ package com.f1soft.sces.service;
 
 import com.f1soft.sces.dto.GradePayload;
 import com.f1soft.sces.dto.ResponseDto;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 public interface GradeService {
 
-  ResponseEntity<ResponseDto> getGrades(GradePayload payload);
+  ResponseEntity<ResponseDto> getGradesForInstructor(String courseCode);
 
-  ResponseEntity<ResponseDto> addGrade(List<GradePayload> grades);
+  ResponseEntity<ResponseDto> getGradesForStudent();
+
+  ResponseEntity<ResponseDto> addGrade(GradePayload grades);
 }

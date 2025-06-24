@@ -15,7 +15,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
   Enrollment findByCode(String code);
 
   @Query(value = "SELECT e from Enrollment e where e.student.id=:studentId and e.completionStatus=:completionStatus")
-  Enrollment findByStudent_idAndCompletionStatus(long studentId,
+  List<Enrollment> findByStudent_idAndCompletionStatus(long studentId,
       CompletionStatus completionStatus);
 
   List<Enrollment> findAllByStudent_Id(long studentId);
@@ -24,6 +24,4 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
   List<Enrollment> findByCompletionStatus(CompletionStatus completionStatus);
 
-  @Query(value = "select e from Enrollment e where e.completionStatus=:completionStatus")
-  Enrollment findByCompletionStatusRunning(CompletionStatus completionStatus);
 }

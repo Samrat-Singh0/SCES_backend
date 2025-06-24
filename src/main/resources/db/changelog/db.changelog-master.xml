@@ -336,4 +336,122 @@
       referencedColumnNames="id"/>
 
   </changeSet>
+
+  <changeSet id="2025-06-22-add-column-remark-in-grade" author="Samrat Singh">
+    <addColumn tableName="grade">
+      <column name="remark" type="varchar(500)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-06-23-create-table-attendance" author="Samrat Singh">
+    <createTable tableName="attendance">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="student_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="course_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="enrollment_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attendance_status" type="varchar(20)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="attendance"
+      baseColumnNames="student_id"
+      constraintName="fk_attendance_student"
+      referencedTableName="student"
+      referencedColumnNames="id"/>
+
+    <addForeignKeyConstraint
+      baseTableName="attendance"
+      baseColumnNames="course_id"
+      constraintName="fk_attendance_course"
+      referencedTableName="course"
+      referencedColumnNames="id"/>
+
+    <addForeignKeyConstraint baseTableName="attendance"
+      baseColumnNames="enrollment_id"
+      constraintName="fk_attendance_enrollment"
+      referencedTableName="enrollment"
+      referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="2025-06-23-add-column-date-in-attendance" author="Samrat Singh">
+    <addColumn tableName="attendance">
+      <column name="date" type="date">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-06-24-add-table-fee" author="Samrat Singh">
+    <createTable tableName="fee">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="student_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="semester_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="amount" type="decimal(19,2)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="fee"
+      baseColumnNames="student_id"
+      constraintName="fk_fee_student"
+      referencedTableName="student"
+      referencedColumnNames="id"/>
+    <addForeignKeyConstraint
+      baseTableName="fee"
+      baseColumnNames="semester_id"
+      constraintName="fk_fee_semester"
+      referencedTableName="semester"
+      referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="2025-06-24-drop-table-fee" author="Samrat Singh">
+    <dropTable tableName="fee"/>
+  </changeSet>
+
+  <changeSet id="2025-06-24-recreate-table-fee" author="Samrat Singh">
+    <createTable tableName="fee">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="enrollment_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="amount" type="decimal(19,2)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="fee"
+      baseColumnNames="enrollment_id"
+      constraintName="fk_fee_enrollment"
+      referencedTableName="enrollment"
+      referencedColumnNames="id"/>
+  </changeSet>
 </databaseChangeLog>

@@ -1,10 +1,10 @@
 package com.f1soft.sces.builder;
 
+import com.example.attendance_fee_lib.enums.FeeStatus;
 import com.f1soft.sces.entities.Enrollment;
 import com.f1soft.sces.entities.Semester;
 import com.f1soft.sces.entities.Student;
 import com.f1soft.sces.enums.CompletionStatus;
-import com.f1soft.sces.enums.PaidStatus;
 import com.f1soft.sces.util.CommonUtility;
 import java.time.LocalDate;
 import lombok.experimental.UtilityClass;
@@ -19,7 +19,7 @@ public class EnrollmentBuilder {
     enrollment.setEnrolledDate(LocalDate.now());
     enrollment.setCompletionDate(null);
     enrollment.setCompletionStatus(CompletionStatus.PENDING);
-    enrollment.setPaidStatus(PaidStatus.UNPAID);
+    enrollment.setPaidStatus(FeeStatus.UNPAID);
     enrollment.setOutstandingFee(semester.getFee());
 //    enrollment.setCourses(enrollment.getCourses());
     return enrollment;

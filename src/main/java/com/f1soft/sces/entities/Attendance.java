@@ -1,25 +1,29 @@
 package com.f1soft.sces.entities;
 
+import com.example.attendance_fee_lib.enums.AttendanceStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Grade {
+public class Attendance {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,8 +45,9 @@ public class Grade {
   private Enrollment enrollment;
 
   @Column(nullable = false)
-  private BigDecimal grade;
+  @Enumerated(EnumType.STRING)
+  private AttendanceStatus attendanceStatus;
 
   @Column(nullable = false)
-  private String remark;
+  private LocalDate date;
 }

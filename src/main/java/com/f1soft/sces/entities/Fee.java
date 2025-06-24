@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Grade {
+public class Fee {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,20 +29,9 @@ public class Grade {
   private String code;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "student_id")
-  private Student student;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "course_id")
-  private Course course;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "enrollment_id")
+  @JoinColumn(name = "enrollment_id", nullable = false)
   private Enrollment enrollment;
 
   @Column(nullable = false)
-  private BigDecimal grade;
-
-  @Column(nullable = false)
-  private String remark;
+  private BigDecimal amount;
 }

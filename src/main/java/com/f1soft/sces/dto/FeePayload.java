@@ -8,11 +8,8 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class GradePayload {
+public class FeePayload {
 
-  private String code;
-  private StudentPayload student;
-  private CoursePayload course;
-  private BigDecimal grade;
-  private String remark;
+  private EnrollmentResponsePayload enrollmentPayload;
+  private BigDecimal amount;
 }

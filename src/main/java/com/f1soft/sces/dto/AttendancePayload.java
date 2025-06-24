@@ -1,6 +1,6 @@
 package com.f1soft.sces.dto;
 
-import java.math.BigDecimal;
+import com.example.attendance_fee_lib.enums.AttendanceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,11 +8,10 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class GradePayload {
+public class AttendancePayload {
 
   private String code;
   private StudentPayload student;
   private CoursePayload course;
-  private BigDecimal grade;
-  private String remark;
+  private AttendanceStatus attendanceStatus;
 }

@@ -1,5 +1,6 @@
 package com.f1soft.sces.service;
 
+import com.example.attendance_fee_lib.services.LibFeeService;
 import com.f1soft.sces.builder.EnrollmentBuilder;
 import com.f1soft.sces.dto.CoursePayload;
 import com.f1soft.sces.dto.EnrollmentPayload;
@@ -40,6 +41,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   private final CommonBeanUtility commonBeanUtility;
   private final CourseRepository courseRepository;
   private final AuditLogService auditLogService;
+  private final LibFeeService libFeeService;
 
 
   @Override
@@ -88,12 +90,34 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return ResponseBuilder.getFailedMessage("Student Not Found");
       }
 
-      Enrollment existingEnrollmentRunning = enrollmentRepository.findByStudent_idAndCompletionStatus(
+      List<Enrollment> existingEnrollmentRunning = enrollmentRepository.findByStudent_idAndCompletionStatus(
           student.getId(),
           CompletionStatus.RUNNING);
-      if (existingEnrollmentRunning != null) {
+      if (!existingEnrollmentRunning.isEmpty()) {
         return ResponseBuilder.getFailedMessage(
             "You are currently enrolled to an existing course.");
+      }
+
+      List<Enrollment> completedEnrollments = enrollmentRepository.findByStudent_idAndCompletionStatus(
+          student.getId(), CompletionStatus.COMPLETED);
+
+      if (!completedEnrollments.isEmpty()) {
+        for (Enrollment completed : completedEnrollments) {
+          boolean isOutstandingHigh = libFeeService.checkThreshold(semester.get().getFee(),
+              completed.getOutstandingFee());
+          if (isOutstandingHigh) {
+            return ResponseBuilder.getFailedMessage(
+                "You are not eligible to enroll due to high outstanding fee.");
+          }
+        }
+      }
+
+      boolean semesterCompleted = completedEnrollments.stream()
+          .anyMatch(
+              completed -> completed.getSemester().getLabel().equals(semester.get().getLabel()));
+
+      if (semesterCompleted) {
+        return ResponseBuilder.getFailedMessage("You have already completed this semester.");
       }
 
       List<Course> courses = new ArrayList<>();

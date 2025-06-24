@@ -1,7 +1,7 @@
 package com.f1soft.sces.entities;
 
+import com.example.attendance_fee_lib.enums.FeeStatus;
 import com.f1soft.sces.enums.CompletionStatus;
-import com.f1soft.sces.enums.PaidStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -57,7 +57,7 @@ public class Enrollment {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private PaidStatus paidStatus;
+  private FeeStatus paidStatus;
 
   @ManyToMany
   @JoinTable(

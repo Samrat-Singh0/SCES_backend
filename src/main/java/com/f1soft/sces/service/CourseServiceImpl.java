@@ -11,6 +11,7 @@ import com.f1soft.sces.enums.ActiveStatus;
 import com.f1soft.sces.enums.AuditAction;
 import com.f1soft.sces.enums.Checked;
 import com.f1soft.sces.enums.Role;
+import com.f1soft.sces.exception.ResourceNotFoundException;
 import com.f1soft.sces.mapper.CourseMapper;
 import com.f1soft.sces.mapper.UserMapper;
 import com.f1soft.sces.model.FilterCourse;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -47,35 +50,35 @@ public class CourseServiceImpl implements CourseService {
 
   @Override
   public ResponseEntity<ResponseDto> getCourse(String code) {
-    Course course = courseRepository.findByCode(code);
-    if (course == null) {
-      return ResponseBuilder.getFailedMessage("Course not found");
-    }
-
+    Course course = Optional.ofNullable(courseRepository.findByCode(code))
+        .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
     CoursePayload coursePayload = CourseMapper.INSTANCE.toCoursePayload(course);
     return ResponseBuilder.success("Fetched Course Successfully", coursePayload);
   }
 
   @Override
   public ResponseEntity<ResponseDto> getAllCourses() {
-    try {
-      List<Course> courses = courseRepository.findByCheckedAndActiveStatus(Checked.CHECKED,
-          ActiveStatus.ACTIVE);
-      if (courses.isEmpty()) {
-        return ResponseBuilder.getFailedMessage("No courses found");
-      } else {
-        List<CoursePayload> courseResponseList = CourseMapper.INSTANCE.toCoursePayloadList(courses);
-        return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
-      }
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
-    }
+    List<Course> courses = Optional.ofNullable(
+            courseRepository.findByCheckedAndActiveStatus(Checked.CHECKED,
+                ActiveStatus.ACTIVE))
+        .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
+    List<CoursePayload> courseResponseList = CourseMapper.INSTANCE.toCoursePayloadList(courses);
+    return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
+  }
+
+  @Override
+  public ResponseEntity<ResponseDto> getAllCourses(Pageable pageable) {
+    Page<Course> coursePage = courseRepository.findByCheckedAndActiveStatus(Checked.CHECKED,
+        ActiveStatus.ACTIVE, pageable);
+    Page<CoursePayload> coursePayloadPage = CourseMapper.INSTANCE.toCoursePayloadPage(coursePage);
+    return ResponseBuilder.success("Fetched Courses Successfully", coursePayloadPage);
   }
 
   @Override
   public ResponseEntity<ResponseDto> getPendingCourses() {
-    List<Course> courses = courseRepository.fetchPendingCourses(
-        commonUtility.getLoggedInUser().getId());
+    List<Course> courses = Optional.ofNullable(courseRepository.fetchPendingCourses(
+            commonUtility.getLoggedInUser().getId()))
+        .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
     List<CoursePayload> coursePayloads = new ArrayList<>();
     for (Course course : courses) {
       CoursePayload coursePayload = CourseMapper.INSTANCE.toCoursePayload(course);
@@ -86,71 +89,65 @@ public class CourseServiceImpl implements CourseService {
       coursePayloads.add(coursePayload);
     }
     return ResponseBuilder.success("Fetched Pending Courses Successfully", coursePayloads);
-
   }
 
   @Override
   public ResponseEntity<ResponseDto> getCourseOnRoles() {
-    try {
-      User currentUser = commonUtility.getLoggedInUser();
+    User currentUser = commonUtility.getLoggedInUser();
 
-      if (currentUser.getRole().equals(Role.INSTRUCTOR)) {
-        Instructor instructor = instructorRepository.findByUser(currentUser);
-        List<Course> courses = courseRepository.findByInstructor(instructor);
-        return ResponseBuilder.success("Fetched Courses Successfully", courses);
-      } else {
-        Student student = studentRepository.findByUser(currentUser);
-        List<Course> courses = courseRepository.fetchCourseForStudent(student.getId());
-        return ResponseBuilder.success("Fetched Courses Successfully", courses);
-      }
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
+    if (currentUser.getRole().equals(Role.INSTRUCTOR)) {
+
+      Instructor instructor = Optional.ofNullable(instructorRepository.findByUser(currentUser))
+          .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
+      List<Course> courses = Optional.ofNullable(
+              courseRepository.findByInstructorId(instructor.getId()))
+          .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
+      return ResponseBuilder.success("Fetched Courses Successfully", courses);
+
+    } else {
+
+      Student student = Optional.ofNullable(studentRepository.findByUser(currentUser))
+          .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+      List<Course> courses = Optional.ofNullable(
+              courseRepository.fetchCourseForStudent(student.getId()))
+          .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
+      return ResponseBuilder.success("Fetched Courses Successfully", courses);
+
     }
+
   }
 
   @Override
   public ResponseEntity<ResponseDto> addCourse(CoursePayload coursePayload) {
-    try {
-      Course course = CourseMapper.INSTANCE.toCourse(coursePayload);
+    Course course = CourseMapper.INSTANCE.toCourse(coursePayload);
 
-      String label = coursePayload.getSemester().getLabel();
-      String instructorCode = coursePayload.getInstructor().getCode();
+    String label = coursePayload.getSemester().getLabel();
+    String instructorCode = coursePayload.getInstructor().getCode();
 
-      Optional<Semester> optionalSemester = semesterRepository.findByLabel(label);
-      Optional<Instructor> optionalInstructor = instructorRepository.findByCode(
-          instructorCode);
+    Semester semester = semesterRepository.findByLabel(label)
+        .orElseThrow(() -> new ResourceNotFoundException("Semester Not Found"));
+    Instructor instructor = instructorRepository.findByCode(
+        instructorCode).orElseThrow(() -> new ResourceNotFoundException("Instructor Not Found"));
 
-      if (optionalInstructor.isEmpty() && optionalSemester.isEmpty()) {
-        return ResponseBuilder.getFailedMessage("No semester or instructor found");
-      }
+    course.setCode(CommonUtility.generateCode("CR-"));
+    course.setSemester(semester);
+    course.setInstructor(instructor);
+    course.setChecked(Checked.PENDING);
+    course.setActiveStatus(ActiveStatus.ACTIVE);
 
-      Semester semester = optionalSemester.get();
-      Instructor instructor = optionalInstructor.get();
+    courseRepository.save(course);
 
-      course.setCode(CommonUtility.generateCode("CR-"));
-      course.setSemester(semester);
-      course.setInstructor(instructor);
-      course.setChecked(Checked.PENDING);
-      course.setActiveStatus(ActiveStatus.ACTIVE);
+    auditLogService.log(commonBeanUtility.getLoggedInUser(), AuditAction.CREATED, "Course",
+        course.getId());
 
-      courseRepository.save(course);
-
-      auditLogService.log(commonBeanUtility.getLoggedInUser(), AuditAction.CREATED, "Course",
-          course.getId());
-
-      return ResponseBuilder.success("Course Added Successfully", null);
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
-    }
+    return ResponseBuilder.success("Course Added Successfully", null);
   }
 
   @Override
   public ResponseEntity<ResponseDto> deleteCourse(String code, String remarks) {
-    Course course = courseRepository.findByCode(code);
-    if (course == null) {
-      return ResponseBuilder.getFailedMessage("Course Not Found");
-    }
-//    courseRepository.deleteById(course.getId());
+
+    Course course = Optional.ofNullable(courseRepository.findByCode(code))
+        .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
     course.setActiveStatus(ActiveStatus.INACTIVE);
     course.setRemarks(remarks);
@@ -160,19 +157,20 @@ public class CourseServiceImpl implements CourseService {
     auditLogService.log(loggedInUser, AuditAction.DELETED, "Course", course.getId());
 
     return ResponseBuilder.success("Course Deleted Successfully", null);
+
   }
 
   @Override
   public ResponseEntity<ResponseDto> updateCourse(CoursePayload payload) {
-    Course course = courseRepository.findByCode(payload.getCode());
-    if (course == null) {
-      return ResponseBuilder.getFailedMessage("Course Not Found");
-    }
+
+    Course course = Optional.ofNullable(courseRepository.findByCode(payload.getCode()))
+        .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
     course.setName(payload.getName());
     course.setCreditHours(payload.getCreditHours());
     course.setFullMarks(payload.getFullMarks());
     course.setChecked(payload.getChecked());
+
     Optional<Semester> optionalSemester = semesterRepository.findByLabel(
         payload.getSemester().getLabel());
     optionalSemester.ifPresent(course::setSemester);
@@ -181,37 +179,35 @@ public class CourseServiceImpl implements CourseService {
         payload.getInstructor().getCode());
     optionalInstructor.ifPresent(course::setInstructor);
 
+    courseRepository.save(course);
+
     auditLogService.log(commonBeanUtility.getLoggedInUser(), AuditAction.UPDATED, "Course",
         course.getId());
 
-    courseRepository.save(course);
     return ResponseBuilder.success("Course Updated Successfully", null);
+
 
   }
 
   @Override
   public ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCriteria) {
-    try {
-      List<Course> courses = courseRepository.findByChecked(Checked.CHECKED);
-      if (courses.isEmpty()) {
-        return ResponseBuilder.getFailedMessage("No courses found");
-      }
 
-      List<CoursePayload> courseResponseList;
-      if (filterCriteria.getName() == null && filterCriteria.getInstructor() == null
-          && filterCriteria.getSemester() == null) {
-        courseResponseList = CourseMapper.INSTANCE.toCoursePayloadList(courses);
-        return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
-      }
+    List<Course> courses = Optional.ofNullable(courseRepository.findByChecked(Checked.CHECKED))
+        .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
 
-      Specification<Course> specification = CourseSpecification.buildSpec(filterCriteria);
-      courseResponseList = courseRepository.findAll(specification).stream()
-          .map(CourseMapper.INSTANCE::toCoursePayload).collect(Collectors.toList());
-
+    List<CoursePayload> courseResponseList;
+    if (filterCriteria.getName() == null && filterCriteria.getInstructor() == null
+        && filterCriteria.getSemester() == null) {
+      courseResponseList = CourseMapper.INSTANCE.toCoursePayloadList(courses);
       return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
     }
+
+    Specification<Course> specification = CourseSpecification.buildSpec(filterCriteria);
+    courseResponseList = courseRepository.findAll(specification).stream()
+        .map(CourseMapper.INSTANCE::toCoursePayload).collect(Collectors.toList());
+
+    return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
+
   }
 
 

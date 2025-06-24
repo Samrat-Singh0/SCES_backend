@@ -1,7 +1,7 @@
 package com.f1soft.sces.dto;
 
+import com.example.attendance_fee_lib.enums.FeeStatus;
 import com.f1soft.sces.enums.CompletionStatus;
-import com.f1soft.sces.enums.PaidStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,5 +25,5 @@ public class EnrollmentResponsePayload extends EnrollmentPayload {
   private LocalDate completionDate;
   private BigDecimal outstandingFee;
   private List<CoursePayload> courses;
-  private PaidStatus paidStatus;
+  private FeeStatus paidStatus;
 }

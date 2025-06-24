@@ -5,6 +5,8 @@ import com.f1soft.sces.dto.ResponseDto;
 import com.f1soft.sces.model.FilterCourse;
 import com.f1soft.sces.service.CourseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +29,15 @@ public class CourseController {
   }
 
   @GetMapping("/list")
-//  @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getCourses() {
     return courseService.getAllCourses();
+  }
+
+  @GetMapping("/paged/list")
+  public ResponseEntity<ResponseDto> getCourses(
+      @PageableDefault(size = 10) Pageable pageable
+  ) {
+    return courseService.getAllCourses(pageable);
   }
 
   @GetMapping("/list/pending")
