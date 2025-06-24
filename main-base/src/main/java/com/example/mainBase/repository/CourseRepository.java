@@ -1,0 +1,42 @@
+package com.example.mainBase.repository;
+
+import com.example.mainBase.entities.Course;
+import com.example.mainBase.enums.ActiveStatus;
+import com.example.mainBase.enums.Checked;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CourseRepository extends JpaRepository<Course, Long>,
+    JpaSpecificationExecutor<Course> {
+
+  Course findByCode(String code);
+
+  List<Course> findByChecked(Checked checked);
+
+  List<Course> findByCheckedAndActiveStatus(Checked checked, ActiveStatus active);
+
+  Page<Course> findByCheckedAndActiveStatus(Checked checked, ActiveStatus active,
+      Pageable pageable);
+
+  @Query(value = "select c from Course c where c.instructor.id=:instructorId and c.checked='CHECKED' and c.activeStatus='ACTIVE'")
+  List<Course> findByInstructorId(Long instructorId);
+
+  @Query("""
+          SELECT c from Course c join AuditLog a on c.id = a.entityId where a.entityName = 'Course' and a.user.id != :loggedInUserId and c.checked='PENDING'
+      """)
+  List<Course> fetchPendingCourses(long loggedInUserId);
+
+  @Query(value = "SELECT c from Course c "
+      + "JOIN EnrollmentCourse ec ON ec.course.id = c.id "
+      + "JOIN Enrollment e ON e.id=ec.enrollment.id "
+      + "WHERE e.student.id = :studentId "
+      + "AND e.completionStatus = 'RUNNING' "
+      + "OR e.completionStatus='COMPLETED'")
+  List<Course> fetchCourseForStudent(Long studentId);
+}
