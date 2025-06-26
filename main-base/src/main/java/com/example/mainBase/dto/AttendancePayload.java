@@ -1,6 +1,7 @@
 package com.example.mainBase.dto;
 
 import com.example.attendance_fee_lib.enums.AttendanceStatus;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class AttendancePayload {
 
+  @NotBlank(message = "Code is required")
   private String code;
   private StudentPayload student;
   private CoursePayload course;

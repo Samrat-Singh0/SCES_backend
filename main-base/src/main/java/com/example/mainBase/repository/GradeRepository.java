@@ -1,5 +1,6 @@
 package com.example.mainBase.repository;
 
+import com.example.mainBase.dto.GradeReportDto;
 import com.example.mainBase.entities.Course;
 import com.example.mainBase.entities.Enrollment;
 import com.example.mainBase.entities.Grade;
@@ -30,4 +31,18 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
 
   Optional<Grade> findByStudentAndCourseAndEnrollment(Student student, Course course,
       Enrollment enrollment);
+
+  @Query(value = "SELECT " +
+      "CONCAT(CONCAT(CONCAT(u.first_name, ' '), COALESCE(u.middle_name, '')), CONCAT(' ', u.last_name)), " +
+      "e.completion_status, " +
+      "g.grade " +
+      "FROM enrollment e " +
+      "LEFT JOIN enrollment_course ec ON ec.enrollment_id = e.id " +
+      "LEFT JOIN course c ON c.id = ec.course_id " +
+      "LEFT JOIN student s ON s.id = e.student_id " +
+      "LEFT JOIN user u ON s.user_id = u.id " +
+      "LEFT JOIN grade g ON g.enrollment_id = e.id " +
+      "WHERE c.id = :courseId",
+      nativeQuery = true)
+  List<GradeReportDto> fetchGradeReport(long courseId);
 }

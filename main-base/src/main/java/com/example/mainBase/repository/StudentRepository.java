@@ -21,4 +21,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
       + "join Course c on c.id=ec.course.id "
       + "and e.completionStatus='RUNNING'")
   List<Student> findByCourse_Id(Long courseId);
+
 }

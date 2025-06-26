@@ -1,5 +1,6 @@
 package com.example.mainBase.repository;
 
+import com.example.mainBase.dto.CourseReportDto;
 import com.example.mainBase.entities.Course;
 import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.enums.Checked;
@@ -39,4 +40,20 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
       + "AND e.completionStatus = 'RUNNING' "
       + "OR e.completionStatus='COMPLETED'")
   List<Course> fetchCourseForStudent(Long studentId);
+
+  @Query(value = "SELECT "
+      + "c.name, "
+      + "s.label, "
+      + "COUNT(DISTINCT e.id) AS total_enrollments, "
+      + "COUNT(DISTINCT CASE WHEN e.completion_status = 'RUNNING' THEN e.id END) AS running_enrollments, "
+      + "AVG(g.grade) "
+      + "FROM course c "
+      + "LEFT JOIN enrollment_course ec ON c.id = ec.course_id "
+      + "LEFT JOIN enrollment e ON e.id = ec.enrollment_id "
+      + "LEFT JOIN grade g ON g.course_id = c.id "
+      + "LEFT JOIN semester s ON s.id = c.semester_id "
+      + "WHERE c.active_status='ACTIVE' "
+      + "group by c.id"
+      , nativeQuery = true)
+  List<CourseReportDto> fetchCourseReports();                  //query returns a list of objects. tara entity use nagareko vayera JPA cannot map the objects fetched.
 }
