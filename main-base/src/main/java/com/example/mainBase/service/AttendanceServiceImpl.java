@@ -12,6 +12,7 @@ import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.Role;
 import com.example.mainBase.exception.ResourceNotFoundException;
 import com.example.mainBase.mapper.AttendanceMapper;
+import com.example.mainBase.model.AttendanceRate;
 import com.example.mainBase.repository.AttendanceRepository;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
@@ -95,4 +96,15 @@ public class AttendanceServiceImpl implements AttendanceService {
         null);
   }
 
+  @Override
+  public ResponseEntity<ResponseDto> getTotalAttendance(String courseCode) {
+    List<AttendanceRate> attendanceRateList = attendanceRepository.getAttendanceCountByCourse(courseCode);
+
+    if (!attendanceRateList.isEmpty()) {
+      return ResponseBuilder.success("Fetched Attendance Rate Successfully", attendanceRateList);
+    }else {
+      return ResponseBuilder.getFailedMessage("No Attendance Rate found");
+    }
+
+  }
 }

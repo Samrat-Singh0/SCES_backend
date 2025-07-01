@@ -71,7 +71,8 @@ public class UserServiceImpl implements UserService {
     }
 
     String password = generateRandomPassword();
-    User newUser = UserBuilder.buildUserForAdd(userRequestPayload, password);
+    System.out.println(password);
+    User newUser = UserBuilder.buildUserForAdd(userRequestPayload, passwordEncoder.encode(password));
     userRepository.save(newUser);
 
     Object userRoleEntity = userRoleEntityFactoryImpl.createRoleEntity(newUser);
@@ -83,10 +84,9 @@ public class UserServiceImpl implements UserService {
 
     User loggedInUser = commonBeanUtility.getLoggedInUser();
     auditLogService.log(loggedInUser, AuditAction.SIGNED_UP, "User",
-        newUser.getId());             //log the event.
+        newUser.getId());
 
     sendEmail(userRequestPayload.getEmail(), password);
-//    userRepository.save(newUser);
     return ResponseBuilder.success("New User Added.", null);
   }
 
@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
 
   private String generateRandomPassword() {
-    return passwordEncoder.encode(UUID.randomUUID().toString());
+    return UUID.randomUUID().toString();
   }
 
   public void sendEmail(String email, String password) {

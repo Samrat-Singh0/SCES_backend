@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,5 +32,10 @@ public class AttendanceController {
   @PreAuthorize("hasRole(@securityRoles.INSTRUCTOR)")
   public ResponseEntity<ResponseDto> saveAttendance(@RequestBody List<AttendancePayload> payload) {
     return attendanceService.addAttendance(payload);
+  }
+
+  @GetMapping("/rate/{courseCode}")
+  public ResponseEntity<ResponseDto> getAttendanceRate(@PathVariable String courseCode) {
+    return attendanceService.getTotalAttendance(courseCode);
   }
 }

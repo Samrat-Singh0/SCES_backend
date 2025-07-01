@@ -11,4 +11,5 @@ public interface AttendanceService {
 
   ResponseEntity<ResponseDto> addAttendance(List<AttendancePayload> payload);
 
+  ResponseEntity<ResponseDto> getTotalAttendance(String courseCode);
 }

@@ -18,11 +18,13 @@ public class UserRoleEntityFactoryImpl implements UserRoleEntityFactory {
           .code(CommonUtility.generateUserCode("STU"))
           .enrollStatus(EnrollStatus.NEW)
           .build();
-    } else {
+    } else if("instructor".equalsIgnoreCase(String.valueOf(user.getRole()))) {
       Instructor instructor = new Instructor();
       instructor.setUser(user);
       instructor.setCode(CommonUtility.generateUserCode("INS"));
       return instructor;
+    } else {
+      return null;
     }
   }
 }

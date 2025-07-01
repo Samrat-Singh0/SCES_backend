@@ -46,7 +46,6 @@ public class User {
   private String address;
 
   @Column(name = "phone_number", unique = true, nullable = false)
-//  @Pattern(regexp = "^98\\d{8}$", message = "Phone number must start with 98 and must be 10 digits.")
   private String phoneNumber;
 
   @Enumerated(EnumType.STRING)
