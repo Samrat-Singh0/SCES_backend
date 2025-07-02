@@ -31,12 +31,11 @@ public class AnalyticsApiClientServiceImpl implements AnalyticsApiClientService 
     HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
     ResponseEntity<ResponseDto> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ResponseDto.class);
-    assert response.getBody() != null;
-    return ResponseBuilder.success("Course Report", response.getBody().getBody());
+    if(response.getBody() != null) {
+      return ResponseBuilder.success("Course Report", response.getBody().getBody());
+    }
 
+    return ResponseBuilder.getFailedMessage("No data found");
 
-
-//    ResponseDto analyticData = restTemplate.getForObject(url, ResponseDto.class);
-//    assert analyticData != null;
   }
 }

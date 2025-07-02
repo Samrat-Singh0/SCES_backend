@@ -4,8 +4,8 @@ import org.springframework.http.ResponseEntity;
 
 public interface ReportingApiClientService {
 
-  ResponseEntity<byte[]> getCourseReport(String documentType);
+  ResponseEntity<?> getCourseReport(String documentType);
 
-  ResponseEntity<byte[]> getGradeReport(String documentType, String courseCode);
+  ResponseEntity<?> getGradeReport(String documentType, String courseCode);
 
 }

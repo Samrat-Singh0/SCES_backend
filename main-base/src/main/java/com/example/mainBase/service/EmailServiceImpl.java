@@ -32,12 +32,5 @@ public class EmailServiceImpl implements EmailService {
     } catch (MessagingException e) {
       throw new RuntimeException(e);
     }
-
-//    SimpleMailMessage message = new SimpleMailMessage();
-//    message.setFrom("sces307@gmail.com");
-//    message.setTo(to);
-//    message.setSubject(subject);
-//    message.setText(body);
-//    mailSender.send(message);
   }
 }

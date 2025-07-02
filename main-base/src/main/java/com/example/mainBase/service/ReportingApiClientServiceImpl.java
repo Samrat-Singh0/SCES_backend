@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,7 +21,7 @@ public class ReportingApiClientServiceImpl implements ReportingApiClientService 
   private String reportAndAnalyticsBaseUrl;
 
   @Override
-  public ResponseEntity<byte[]> getCourseReport(String documentType) {
+  public ResponseEntity<?> getCourseReport(String documentType) {
     String token = oktaTokenService.getAccessToken();
 
     String url = reportAndAnalyticsBaseUrl + "/api/report/get/course/" + documentType;
@@ -28,24 +29,24 @@ public class ReportingApiClientServiceImpl implements ReportingApiClientService 
   }
 
   @Override
-  public ResponseEntity<byte[]> getGradeReport(String documentType, String courseCode) {
+  public ResponseEntity<?> getGradeReport(String documentType, String courseCode) {
     String token = oktaTokenService.getAccessToken();
     String url = reportAndAnalyticsBaseUrl + "/api/report/get/grade/" + documentType + "/" + courseCode;
     return getResponse(url, token);
   }
 
-  private ResponseEntity<byte[]> getResponse(String url, String token) {
+  private ResponseEntity<?> getResponse(String url, String token) {
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(token);
 
     HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-    ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
-    String contentDisposition = response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION);
+    try {
+      return restTemplate.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
 
-    return ResponseEntity
-        .status(response.getStatusCode())
-        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)    //data lai browser ma dekhaunu satta, make them download the data in a file
-        .body(response.getBody());
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body("Error during communication.");
+    }
   }
 }

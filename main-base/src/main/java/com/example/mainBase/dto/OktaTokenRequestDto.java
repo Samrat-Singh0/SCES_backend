@@ -16,5 +16,6 @@ public class OktaTokenRequestDto {
   private String clientSecret;
   @JsonProperty("grant_type")
   private String grantType;
+
   private String audience;
 }

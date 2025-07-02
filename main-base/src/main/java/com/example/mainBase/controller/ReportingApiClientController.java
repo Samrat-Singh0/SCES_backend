@@ -16,12 +16,12 @@ public class ReportingApiClientController {
   private final ReportingApiClientService reportingApiClientService;
 
   @GetMapping("/course/{documentType}")
-  public ResponseEntity<byte[]> getCourseReport(@PathVariable String documentType) {
+  public ResponseEntity<?> getCourseReport(@PathVariable String documentType) {
     return reportingApiClientService.getCourseReport(documentType);
   }
 
   @GetMapping("/grade/{documentType}/{courseCode}")
-  public ResponseEntity<byte[]> getGradeReport(@PathVariable String documentType, @PathVariable String courseCode) {
+  public ResponseEntity<?> getGradeReport(@PathVariable String documentType, @PathVariable String courseCode) {
     return reportingApiClientService.getGradeReport(documentType, courseCode);
   }
 }
