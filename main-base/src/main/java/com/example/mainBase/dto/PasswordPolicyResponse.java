@@ -15,4 +15,5 @@ public class PasswordPolicyResponse {
   String parameters;
   String regex;
   boolean active;
+  int length;
 }

@@ -454,4 +454,12 @@
       referencedTableName="enrollment"
       referencedColumnNames="id"/>
   </changeSet>
+
+  <changeSet id="2025-07-03" author="Samrat Singh">
+    <addColumn tableName="password_policy">
+      <column name="length" type="int">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

@@ -16,7 +16,7 @@ public class PasswordPolicyMapper {
       passwordPolicyResponse.setParameters(policy.getParameters());
       passwordPolicyResponse.setRegex(policy.getRegex());
       passwordPolicyResponse.setActive(policy.getActive());
-
+      passwordPolicyResponse.setLength(policy.getLength());
       passwordPolicyDto.add(passwordPolicyResponse);
     }
 

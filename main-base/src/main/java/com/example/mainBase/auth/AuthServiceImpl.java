@@ -55,6 +55,8 @@ public class AuthServiceImpl implements AuthService {
           .mustChangePassword(user.isMustChangePassword())
           .build();
 
+
+
       auditLogService.log(user, AuditAction.LOGGED_IN, "", null);
 
       ResponseDto responseBody = new ResponseDto(true, "Logged-In",

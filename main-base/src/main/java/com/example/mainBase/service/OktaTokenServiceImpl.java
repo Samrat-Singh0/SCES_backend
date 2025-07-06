@@ -5,19 +5,14 @@ import com.example.mainBase.dto.OktaTokenResponseDto;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.util.CommonBeanUtility;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -56,18 +51,6 @@ public class OktaTokenServiceImpl implements OktaTokenService {
 
   @Value("${oauth.student.audience}")
   private String studentAudience;
-
-  @Value("${okta.api.uri}")
-  private String oktaApiUri;
-
-  @Value("${okta.client.id}")
-  private String oktaClientId;
-
-  @Value("${okta.client.audience}")
-  private String oktaClientSecret;
-
-  @Value("${okta.client.audience}")
-  private String oktaAudience;
 
   private String cachedToken;       //by default, spring beans haru singleton hunxan, so cachedToken ko naya instance bandaina
   private Instant tokenExpiry;

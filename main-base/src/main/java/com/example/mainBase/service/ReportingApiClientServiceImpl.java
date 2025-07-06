@@ -1,11 +1,14 @@
 package com.example.mainBase.service;
 
+import com.example.mainBase.dto.ReportRequestDto;
+import com.example.mainBase.util.AESUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,33 +23,30 @@ public class ReportingApiClientServiceImpl implements ReportingApiClientService 
   @Value("${reporting.api.url}")
   private String reportAndAnalyticsBaseUrl;
 
-  @Override
-  public ResponseEntity<?> getCourseReport(String documentType) {
-    String token = oktaTokenService.getAccessToken();
-
-    String url = reportAndAnalyticsBaseUrl + "/api/report/get/course/" + documentType;
-    return getResponse(url, token);
-  }
+  @Value("${aes.secret.key}")
+  private String SECRET_KEY;
 
   @Override
-  public ResponseEntity<?> getGradeReport(String documentType, String courseCode) {
-    String token = oktaTokenService.getAccessToken();
-    String url = reportAndAnalyticsBaseUrl + "/api/report/get/grade/" + documentType + "/" + courseCode;
-    return getResponse(url, token);
-  }
+  public ResponseEntity<?> getReport(ReportRequestDto requestDto) throws Exception {
 
-  private ResponseEntity<?> getResponse(String url, String token) {
+//    String encryptedText = AESUtil.encrypt("Samrat", SECRET_KEY);
+    String encryptedText = AESUtil.encryptObject(requestDto, SECRET_KEY);
+    System.out.println("Encrypted:::" + encryptedText);
+
+    String token = oktaTokenService.getAccessToken();
+    String url = reportAndAnalyticsBaseUrl + "/api/report/get";
+
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(token);
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
-    HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+    HttpEntity<String> requestEntity = new HttpEntity<>(encryptedText, headers);
 
     try {
-      return restTemplate.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
-
-    }catch (Exception e){
+      return restTemplate.exchange(url, HttpMethod.POST, requestEntity, byte[].class);
+    }catch (Exception e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body("Error during communication.");
+          .body(e.getMessage());
     }
   }
 }

@@ -32,4 +32,7 @@ public class PasswordPolicy {
 
   @Column(nullable = false)
   private Boolean active;
+
+  @Column(nullable = false)
+  private int length;
 }

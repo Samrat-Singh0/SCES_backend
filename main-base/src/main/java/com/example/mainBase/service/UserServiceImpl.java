@@ -86,6 +86,7 @@ public class UserServiceImpl implements UserService {
     auditLogService.log(loggedInUser, AuditAction.SIGNED_UP, "User",
         newUser.getId());
 
+
     sendEmail(userRequestPayload.getEmail(), password);
     return ResponseBuilder.success("New User Added.", null);
   }
