@@ -19,8 +19,10 @@ import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +57,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity<ResponseDto> getActiveUsers(Pageable pageable) {
+    User user = commonBeanUtility.getLoggedInUser();
+
+
     Page<User> userPage = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE, pageable);
+
     Page<UserRequestPayload> userRequestPayloadPage = UserMapper.INSTANCE.toUserDtoPage(userPage);
 
     return ResponseBuilder.success("Fetched Users Successfully", userRequestPayloadPage);
