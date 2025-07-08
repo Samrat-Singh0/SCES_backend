@@ -33,8 +33,8 @@ public class JwtUtil {
         .claim("roles", roles)
         .claim("type", "at")
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + 1000 * 10))
-//        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+//        .expiration(new Date(System.currentTimeMillis() + 1000 * 10))
+        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
         .signWith(getKey())
         .compact();
   }
@@ -45,8 +45,8 @@ public class JwtUtil {
         .subject(userDetails.getUsername())
         .claim("type", "rt")
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-//        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+//        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
         .signWith(getKey())
         .compact();
   }
