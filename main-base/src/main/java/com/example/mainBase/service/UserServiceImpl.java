@@ -21,7 +21,6 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -127,29 +126,21 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity<ResponseDto> getUserBySearchText(
-      FilterUser filterCriteria) {
+      FilterUser filterCriteria, Pageable pageable) {
     try {
-      List<UserRequestPayload> users;
+      Page<UserRequestPayload> users;
       List<User> userList = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
 
       if (userList.isEmpty()) {
         return ResponseBuilder.getFailedMessage("No any active users");
       }
 
-//      if (filterCriteria.getFirstName() == null && filterCriteria.getMiddleName() == null
-//          && filterCriteria.getLastName() == null && filterCriteria.getRole() == null
-//          && filterCriteria.getPhoneNumber() == null) {
-//        users = UserMapper.INSTANCE.toUserDtoList(userList);
-//        return ResponseBuilder.success("Fetched User Successfully", users);
-//      }
-
       Specification<User> specification = UserSpecification.buildSpec(filterCriteria);
 
-      users = userRepository.findAll(specification).stream()
-          .map(UserMapper.INSTANCE::toUserDto)
-          .collect(Collectors.toList());
+      Page<User> userPage = userRepository.findAll(specification, pageable);
+      Page<UserRequestPayload> userRequestPayloadPage = UserMapper.INSTANCE.toUserDtoPage(userPage);
 
-      return ResponseBuilder.success("Fetched User Successfully", users);
+      return ResponseBuilder.success("Fetched User Successfully", userRequestPayloadPage);
 
     } catch (Exception e) {
       return ResponseBuilder.getFailedMessage(e.getMessage());

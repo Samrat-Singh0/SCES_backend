@@ -24,6 +24,7 @@ public interface CourseService {
 
   ResponseEntity<ResponseDto> updateCourse(CoursePayload payload);
 
-  ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCriteria);
+
+  ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCourse, Pageable pageable);
 
 }

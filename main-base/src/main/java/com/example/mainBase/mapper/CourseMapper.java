@@ -17,13 +17,14 @@ public interface CourseMapper {
 
   CoursePayload toCoursePayload(Course course);
 
-  List<CoursePayload> toCoursePayloadList(List<Course> courseList);
-
   default Page<CoursePayload> toCoursePayloadPage(Page<Course> coursePage) {
     List<CoursePayload> coursePayloadList = toCoursePayloadList(coursePage.getContent());
     return new PageImpl<>(coursePayloadList, coursePage.getPageable(),
         coursePage.getTotalElements());
   }
+
+  List<CoursePayload> toCoursePayloadList(List<Course> courseList);
+
 
   Course courseResponsePayloadToCourse(CoursePayload coursePayload);
 

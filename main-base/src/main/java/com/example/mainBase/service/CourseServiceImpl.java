@@ -27,7 +27,6 @@ import com.example.mainBase.util.ResponseBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -190,25 +189,19 @@ public class CourseServiceImpl implements CourseService {
   }
 
   @Override
-  public ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCriteria) {
+  public ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCriteria, Pageable pageable) {
 
     List<Course> courses = Optional.ofNullable(courseRepository.findByChecked(Checked.CHECKED))
         .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
 
-    List<CoursePayload> courseResponseList;
-    if (filterCriteria.getName() == null && filterCriteria.getInstructor() == null
-        && filterCriteria.getSemester() == null) {
-      courseResponseList = CourseMapper.INSTANCE.toCoursePayloadList(courses);
-      return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
-    }
 
     Specification<Course> specification = CourseSpecification.buildSpec(filterCriteria);
-    courseResponseList = courseRepository.findAll(specification).stream()
-        .map(CourseMapper.INSTANCE::toCoursePayload).collect(Collectors.toList());
+
+    Page<Course> coursePage = courseRepository.findAll(specification, pageable);
+    Page<CoursePayload> courseResponseList = CourseMapper.INSTANCE.toCoursePayloadPage(coursePage);
 
     return ResponseBuilder.success("Fetched Courses Successfully", courseResponseList);
 
   }
-
 
 }

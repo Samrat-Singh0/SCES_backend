@@ -8,6 +8,7 @@ import com.example.mainBase.entities.Course;
 import com.example.mainBase.entities.Enrollment;
 import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
+import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.Role;
 import com.example.mainBase.exception.ResourceNotFoundException;
@@ -35,6 +36,7 @@ public class AttendanceServiceImpl implements AttendanceService {
   private final StudentRepository studentRepository;
   private final CourseRepository courseRepository;
   private final AttendanceRepository attendanceRepository;
+  private final AuditLogService auditLogService;
   private final CommonBeanUtility commonBeanUtility;
 
 
@@ -70,6 +72,9 @@ public class AttendanceServiceImpl implements AttendanceService {
   public ResponseEntity<ResponseDto> addAttendance(List<AttendancePayload> payloads) {
     List<Attendance> attendances = new ArrayList<>();
 
+    User user = commonBeanUtility.getLoggedInUser();
+
+
     for (AttendancePayload payload : payloads) {
       Student student = Optional.ofNullable(
               studentRepository.findByCode(payload.getStudent().getCode()))
@@ -88,9 +93,12 @@ public class AttendanceServiceImpl implements AttendanceService {
       }
       Attendance newAttendance = AttendanceBuilder.build(payload, student, course, enrollment);
       attendances.add(newAttendance);
+
+      auditLogService.log(user, AuditAction.CREATED, "Attendance", newAttendance.getId());
     }
 
     attendanceRepository.saveAll(attendances);
+
     return ResponseBuilder.success(
         "Attendance Done.",
         null);

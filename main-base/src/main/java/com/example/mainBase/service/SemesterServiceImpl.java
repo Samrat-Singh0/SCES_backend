@@ -3,8 +3,11 @@ package com.example.mainBase.service;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.dto.SemesterPayload;
 import com.example.mainBase.entities.Semester;
+import com.example.mainBase.entities.User;
+import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.mapper.SemesterMapper;
 import com.example.mainBase.repository.SemesterRepository;
+import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +20,10 @@ import org.springframework.stereotype.Service;
 public class SemesterServiceImpl implements SemesterService {
 
   private final SemesterRepository semesterRepository;
+
+  private final AuditLogService auditLogService;
+
+  private final CommonBeanUtility commonBeanUtility;
 
   @Override
   public ResponseEntity<ResponseDto> getSemester(String label) {
@@ -54,6 +61,9 @@ public class SemesterServiceImpl implements SemesterService {
     }
     Semester semester = SemesterMapper.INSTANCE.toSemester(payload);
     semesterRepository.save(semester);
+
+    User user = commonBeanUtility.getLoggedInUser();
+    auditLogService.log(user, AuditAction.CREATED, "Semester", semester.getId());
     return ResponseBuilder.success("Added Semester Successfully", semester);
   }
 
@@ -74,6 +84,10 @@ public class SemesterServiceImpl implements SemesterService {
       semester.setEndDate(semesterPayload.getEndDate());
 
       semesterRepository.save(semester);
+
+      User user = commonBeanUtility.getLoggedInUser();
+      auditLogService.log(user, AuditAction.UPDATED, "Semester", semester.getId());
+
       return ResponseBuilder.success("Semester Updated.", null);
     } catch (Exception e) {
       return ResponseBuilder.getFailedMessage(e.getMessage());

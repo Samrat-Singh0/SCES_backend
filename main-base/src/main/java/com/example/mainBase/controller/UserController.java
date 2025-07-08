@@ -61,7 +61,7 @@ public class UserController {
 
   @PostMapping("/search")
   public ResponseEntity<ResponseDto> searchUsers(
-      @RequestBody FilterUser filterCriteria) {
-    return userService.getUserBySearchText(filterCriteria);
+      @RequestBody FilterUser filterCriteria, @PageableDefault(size = 5, page = 0, sort = "firstName") Pageable pageable) {
+    return userService.getUserBySearchText(filterCriteria, pageable);
   }
 }

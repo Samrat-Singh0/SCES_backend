@@ -7,6 +7,7 @@ import com.example.mainBase.enums.Checked;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,8 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
 
   Page<Course> findByCheckedAndActiveStatus(Checked checked, ActiveStatus active,
       Pageable pageable);
+
+  Page<Course> findAll(Specification<Course> spec, Pageable pageable);
 
   @Query(value = "select c from Course c where c.instructor.id=:instructorId and c.checked='CHECKED' and c.activeStatus='ACTIVE'")
   List<Course> findByInstructorId(Long instructorId);

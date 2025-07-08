@@ -1,4 +1,4 @@
-package com.example.mainBase.auth;
+package com.example.mainBase.service;
 
 import com.example.mainBase.auth.jwt.JwtUtil;
 import com.example.mainBase.dto.LoginRequest;
@@ -8,9 +8,9 @@ import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.security.CustomUserDetailService;
-import com.example.mainBase.service.AuditLogService;
-import com.example.mainBase.service.UserService;
 import com.example.mainBase.util.ResponseBuilder;
+import java.util.Date;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,8 @@ public class AuthServiceImpl implements AuthService {
 
       final UserDetails userDetails = customUserDetailService.loadUserByUsername(
           loginRequest.getEmail());
-      final String jwt = jwtUtil.generateToken(userDetails);
+      final String accessToken = jwtUtil.generateAccessToken(userDetails);
+      final String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
       User user = userService.findUserByEmail(loginRequest.getEmail());
 
@@ -53,9 +54,9 @@ public class AuthServiceImpl implements AuthService {
           .lastName(user.getLastName())
           .role(user.getRole().name())
           .mustChangePassword(user.isMustChangePassword())
+          .accessExpiryDate(jwtUtil.extractExpiryDate(accessToken))
+          .refreshExpiryDate(jwtUtil.extractExpiryDate(refreshToken))
           .build();
-
-
 
       auditLogService.log(user, AuditAction.LOGGED_IN, "", null);
 
@@ -63,11 +64,35 @@ public class AuthServiceImpl implements AuthService {
           loginUserResponse);
 
       return ResponseEntity.ok()
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
+          .header(HttpHeaders.AUTHORIZATION, accessToken)
+          .header("X-Refresh-Token", refreshToken)
           .body(responseBody);
 
     } catch (BadCredentialsException e) {
       return ResponseBuilder.getFailedMessage(e.getMessage());
+    }
+  }
+
+  @Override
+  public ResponseEntity<ResponseDto> loginWithRefresh(String refreshToken) {
+    String userEmail = jwtUtil.extractUserEmail(refreshToken);
+
+    final UserDetails userDetails = customUserDetailService.loadUserByUsername(
+       userEmail);
+    boolean isTokenValid = jwtUtil.validateToken(refreshToken, userDetails);
+    if (isTokenValid) {
+      String accessToken = jwtUtil.generateAccessToken(userDetails);
+      Date accessExpiryDate = jwtUtil.extractExpiryDate(accessToken);
+      ResponseDto responseBody = new ResponseDto(true, "Token refreshed", Map.of(
+          "accessExpiryDate", accessExpiryDate
+      ));
+
+      return ResponseEntity.ok()
+          .header(HttpHeaders.AUTHORIZATION, accessToken)
+          .header("X-Refresh-Token", refreshToken)
+          .body(responseBody);
+    }else {
+      return ResponseBuilder.getFailedMessage("Invalid refresh token");
     }
   }
 }

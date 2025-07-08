@@ -24,6 +24,5 @@ public interface UserService {
 
   ResponseEntity<ResponseDto> changePassword(ChangePasswordRequest changePasswordRequest);
 
-  ResponseEntity<ResponseDto> getUserBySearchText(
-      FilterUser filterCriteria);
+  ResponseEntity<ResponseDto> getUserBySearchText(FilterUser filterCriteria, Pageable pageable);
 }

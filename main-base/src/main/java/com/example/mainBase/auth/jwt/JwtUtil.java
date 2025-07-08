@@ -22,18 +22,31 @@ public class JwtUtil {
         keyBytes);
   }
 
-  public String generateToken(UserDetails userDetails) {
+  public String generateAccessToken(UserDetails userDetails) {
 
     var roles = userDetails.getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .toList();
 
-
     return Jwts.builder()
         .subject(userDetails.getUsername())
         .claim("roles", roles)
+        .claim("type", "at")
         .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+        .expiration(new Date(System.currentTimeMillis() + 1000 * 10))
+//        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+        .signWith(getKey())
+        .compact();
+  }
+
+  public String generateRefreshToken(UserDetails userDetails) {
+
+    return Jwts.builder()
+        .subject(userDetails.getUsername())
+        .claim("type", "rt")
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+//        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
         .signWith(getKey())
         .compact();
   }
@@ -46,7 +59,7 @@ public class JwtUtil {
     return Jwts.parser()
         .verifyWith(getKey())
         .build()
-        .parseSignedClaims(token)
+        .parseSignedClaims(token)           //header, body, signature xuttinxa
         .getPayload();
   }
 
@@ -59,5 +72,8 @@ public class JwtUtil {
     return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
   }
 
+  public Date extractExpiryDate(String token) {
+    return extractAllClaims(token).getExpiration();
+  }
 
 }

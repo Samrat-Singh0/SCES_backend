@@ -72,8 +72,8 @@ public class CourseController {
 
   @PostMapping("/search")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> searchCourse(@RequestBody FilterCourse course) {
-    return courseService.getCourseBySearchText(course);
+  public ResponseEntity<ResponseDto> searchCourse(@RequestBody FilterCourse criteria, @PageableDefault(size = 5, page = 0, sort = "name") Pageable pageable) {
+    return courseService.getCourseBySearchText(criteria, pageable);
   }
 
 }

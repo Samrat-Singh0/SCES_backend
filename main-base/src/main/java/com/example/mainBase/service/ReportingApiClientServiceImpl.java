@@ -19,15 +19,18 @@ public class ReportingApiClientServiceImpl implements ReportingApiClientService 
 
   private final RestTemplate restTemplate;
   private final OktaTokenService oktaTokenService;
+  private final SecretKeyService secretKeyService;
 
   @Value("${reporting.api.url}")
   private String reportAndAnalyticsBaseUrl;
 
-  @Value("${aes.secret.key}")
-  private String SECRET_KEY;
+//  @Value("${aes.secret.key}")
+//  private String SECRET_KEY;
 
   @Override
   public ResponseEntity<?> getReport(ReportRequestDto requestDto) throws Exception {
+
+    final String SECRET_KEY = secretKeyService.getKey();
 
 //    String encryptedText = AESUtil.encrypt("Samrat", SECRET_KEY);
     String encryptedText = AESUtil.encryptObject(requestDto, SECRET_KEY);

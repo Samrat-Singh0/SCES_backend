@@ -462,4 +462,60 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet id="2025-07-07-create-table-secret-key" author="Samrat Singh">
+    <createTable tableName="secret_key">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="secret_key" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-07-07-drop-table-secret-key" author="Samrat Singh">
+    <dropTable tableName="secret_key"/>
+  </changeSet>
+
+  <changeSet id="2025-07-07-recreate-table-secret-key" author="Samrat Singh">
+    <createTable tableName="secret_key">
+      <column name="id" type="bigint">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="key" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-07-07-create-table-refresh-token-table" author="Samrat Singh">
+    <createTable tableName="refresh_token">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refresh_token" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="issued_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expires_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="refresh_token"
+      baseColumnNames="user_id"
+      constraintName="fk_refresh_token_user"
+      referencedTableName="user"
+      referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="2025-07-07-drop-table-refresh-token" author="Samrat Singh">
+    <dropTable tableName="refresh_token"/>
+  </changeSet>
 </databaseChangeLog>
