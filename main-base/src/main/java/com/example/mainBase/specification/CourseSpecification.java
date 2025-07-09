@@ -42,8 +42,8 @@ public class CourseSpecification {
   }
 
   public static Specification<Course> hasStatusChecked() {
-    return (root, query, criteriaBuidler) ->
-        criteriaBuidler.equal(root.get("checked"), "checked");
+    return (root, query, criteriaBuilder) ->
+        criteriaBuilder.equal(root.get("checked"), "checked");
   }
 
   public static Specification<Course> buildSpec(FilterCourse filterCriteria) {
