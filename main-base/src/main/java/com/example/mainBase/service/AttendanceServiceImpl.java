@@ -74,7 +74,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     User user = commonBeanUtility.getLoggedInUser();
 
-
     for (AttendancePayload payload : payloads) {
       Student student = Optional.ofNullable(
               studentRepository.findByCode(payload.getStudent().getCode()))
@@ -84,7 +83,7 @@ public class AttendanceServiceImpl implements AttendanceService {
       List<Enrollment> enrollmentList = enrollmentRepository.findByStudent_idAndCompletionStatus(
           student.getId(), CompletionStatus.RUNNING);
 
-      Enrollment enrollment = enrollmentList.getFirst();
+      Enrollment enrollment = enrollmentList.getFirst(); //todo: check for empty enrollment list.
 
       Optional<Attendance> existingAttendance = attendanceRepository.findByCourseAndDate(course,
           LocalDate.now());

@@ -6,6 +6,7 @@ import com.example.mainBase.model.FilterCourse;
 import com.example.mainBase.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +36,7 @@ public class CourseController {
 
   @GetMapping("/paged/list")
   public ResponseEntity<ResponseDto> getCourses(
-      @PageableDefault(size = 10) Pageable pageable
+      @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable
   ) {
     return courseService.getAllCourses(pageable);
   }
