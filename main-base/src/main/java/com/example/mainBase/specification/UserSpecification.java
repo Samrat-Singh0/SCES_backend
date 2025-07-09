@@ -44,7 +44,7 @@ public class UserSpecification {
     if (filterCriteria.getFirstName() != null) {
       specification = specification.and(hasFirstName(filterCriteria.getFirstName()));
     }
-    if (filterCriteria.getLastName() != null) {
+    if (filterCriteria.getMiddleName() != null) {
       specification = specification.and(hasMiddleName(filterCriteria.getMiddleName()));
     }
     if (filterCriteria.getLastName() != null) {
