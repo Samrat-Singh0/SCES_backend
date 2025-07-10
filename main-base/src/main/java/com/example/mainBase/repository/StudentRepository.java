@@ -20,7 +20,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
       + "join EnrollmentCourse ec on ec.enrollment.id=e.id "
       + "join Course c on c.id=ec.course.id "
       + "and (e.completionStatus='RUNNING' "
-      + "OR e.completionStatus='COMPLETED')")
+      + ")")
   List<Student> findByCourse_Id(Long courseId);
 
 }

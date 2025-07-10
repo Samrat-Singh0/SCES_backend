@@ -83,7 +83,11 @@ public class AttendanceServiceImpl implements AttendanceService {
       List<Enrollment> enrollmentList = enrollmentRepository.findByStudent_idAndCompletionStatus(
           student.getId(), CompletionStatus.RUNNING);
 
-      Enrollment enrollment = enrollmentList.getFirst(); //todo: check for empty enrollment list.
+      if(enrollmentList.isEmpty()) {
+        return ResponseBuilder.getFailedMessage("Enrollment not found");
+      }
+
+      Enrollment enrollment = enrollmentList.getFirst();
 
       Optional<Attendance> existingAttendance = attendanceRepository.findByCourseAndDate(course,
           LocalDate.now());

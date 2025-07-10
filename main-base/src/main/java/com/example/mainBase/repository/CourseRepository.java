@@ -32,7 +32,10 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
   List<Course> findByInstructorId(Long instructorId);
 
   @Query("""
-          SELECT c from Course c join AuditLog a on c.id = a.entityId where a.entityName = 'Course' and a.user.id != :loggedInUserId and c.checked='PENDING'
+          SELECT c from Course c 
+          join AuditLog a on c.id = a.entityId 
+          where a.entityName = 'Course' 
+          and c.checked='PENDING'
       """)
   List<Course> fetchPendingCourses(long loggedInUserId);
 
