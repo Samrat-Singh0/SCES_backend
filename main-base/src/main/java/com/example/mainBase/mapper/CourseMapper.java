@@ -25,7 +25,6 @@ public interface CourseMapper {
 
   List<CoursePayload> toCoursePayloadList(List<Course> courseList);
 
-
   Course courseResponsePayloadToCourse(CoursePayload coursePayload);
 
 }

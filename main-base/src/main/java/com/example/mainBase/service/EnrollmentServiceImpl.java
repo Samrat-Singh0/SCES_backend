@@ -16,10 +16,12 @@ import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.EnrollStatus;
 import com.example.mainBase.enums.Role;
 import com.example.mainBase.mapper.EnrollmentMapper;
+import com.example.mainBase.model.FilterEnrollment;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
 import com.example.mainBase.repository.SemesterRepository;
 import com.example.mainBase.repository.StudentRepository;
+import com.example.mainBase.specification.EnrollmentSpecification;
 import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
 import java.time.LocalDate;
@@ -27,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +51,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
   @Override
   public ResponseEntity<ResponseDto> getEnrollments() {
-    try {
       List<Enrollment> enrollments;
       User user = commonBeanUtility.getLoggedInUser();
       if (user.getRole() == Role.STUDENT) {
@@ -58,9 +62,20 @@ public class EnrollmentServiceImpl implements EnrollmentService {
       List<EnrollmentResponsePayload> responsePayloads = EnrollmentMapper.INSTANCE.toResponsePayloads(
           enrollments);
       return ResponseBuilder.success("Fetched Enrollments Successfully", responsePayloads);
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
+  }
+
+  @Override
+  public ResponseEntity<ResponseDto> getEnrollments(Pageable pageable) {
+    User user = commonBeanUtility.getLoggedInUser();
+    Page<Enrollment> enrollmentPage;
+    if (user.getRole() == Role.STUDENT) {
+      Student student = studentRepository.findByUser(user);
+      enrollmentPage = enrollmentRepository.findEnrollmentPageForStudent(student.getId(), pageable);
+    }else {
+      enrollmentPage = enrollmentRepository.findByCompletionStatusNot(CompletionStatus.PENDING, pageable);
     }
+    Page<EnrollmentResponsePayload> responsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+    return ResponseBuilder.success("Fetched Enrollments Successfully", responsePayloads);
   }
 
   @Override
@@ -184,5 +199,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     } catch (Exception e) {
       return ResponseBuilder.getFailedMessage(e.getMessage());
     }
+  }
+
+  @Override
+  public ResponseEntity<ResponseDto> getCourseBySearchText(FilterEnrollment criteria,
+      Pageable pageable) {
+
+    Specification<Enrollment> specification = EnrollmentSpecification.buildSpec(criteria);
+
+    Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(specification, pageable);
+    Page<EnrollmentResponsePayload> enrollmentResponsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+
+    return ResponseBuilder.success("Fetched Enrollment Successfully", enrollmentResponsePayloads);
   }
 }

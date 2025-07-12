@@ -33,6 +33,7 @@ public class CourseSpecification {
       );
     };
   }
+
   public static Specification<Course> hasSemester(String semesterName) {
     return (root, query, criteriaBuilder) ->
         criteriaBuilder.like(
