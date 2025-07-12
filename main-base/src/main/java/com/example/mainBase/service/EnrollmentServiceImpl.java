@@ -204,12 +204,27 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   @Override
   public ResponseEntity<ResponseDto> getCourseBySearchText(FilterEnrollment criteria,
       Pageable pageable) {
-
+    User user = commonBeanUtility.getLoggedInUser();
     Specification<Enrollment> specification = EnrollmentSpecification.buildSpec(criteria);
 
-    Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(specification, pageable);
-    Page<EnrollmentResponsePayload> enrollmentResponsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+    if(user.getRole().equals(Role.SUPER_ADMIN)) {
+      Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(specification, pageable);
+      Page<EnrollmentResponsePayload> enrollmentResponsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+      return ResponseBuilder.success("Fetched Enrollment Successfully", enrollmentResponsePayloads);
+    }else {
+      Student student = studentRepository.findByUser(user);
+      Specification<Enrollment> studentSpec = (root, query, cb) ->
+          cb.equal(root.get("student").get("id"), student.getId());
 
-    return ResponseBuilder.success("Fetched Enrollment Successfully", enrollmentResponsePayloads);
+      Specification<Enrollment> finalSpec = specification.and(studentSpec);
+
+      Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(finalSpec, pageable);
+      Page<EnrollmentResponsePayload> enrollmentResponsePayloads =
+          EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+
+      return ResponseBuilder.success("Fetched Student Enrollment Successfully", enrollmentResponsePayloads);
+    }
+
+
   }
 }

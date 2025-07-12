@@ -2,6 +2,7 @@ package com.example.mainBase.repository;
 
 
 import com.example.mainBase.entities.Enrollment;
+import com.example.mainBase.entities.Student;
 import com.example.mainBase.enums.CompletionStatus;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
   Page<Enrollment> findEnrollmentPageForStudent(Long studentId, Pageable pageable);
 
   Page<Enrollment> findAll(Specification<Enrollment> spec, Pageable pageable);
+
+  Page<Enrollment> findAllByStudent(Specification<Enrollment> specification, Pageable pageable, Student student);
 
   Enrollment findByCode(String code);
 
