@@ -21,10 +21,10 @@ import org.springframework.stereotype.Service;
 public class PasswordPolicyServiceImpl implements PasswordPolicyService {
 
   private final PasswordPolicyRepository passwordPolicyRepository;
-
   private final AuditLogService auditLogService;
-
   private final CommonBeanUtility commonBeanUtility;
+  private final UserService userService;
+
 
   @Override
   public ResponseEntity<ResponseDto> getAllPolicies() {
@@ -59,7 +59,7 @@ public class PasswordPolicyServiceImpl implements PasswordPolicyService {
       }
     });
 
-
+    userService.setMustChangePassword();
     return ResponseBuilder.success("Update Successful", null);
   }
 

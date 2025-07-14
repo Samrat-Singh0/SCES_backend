@@ -75,8 +75,7 @@ public class CourseServiceImpl implements CourseService {
 
   @Override
   public ResponseEntity<ResponseDto> getPendingCourses() {
-    List<Course> courses = Optional.ofNullable(courseRepository.fetchPendingCourses(
-            commonUtility.getLoggedInUser().getId()))
+    List<Course> courses = Optional.ofNullable(courseRepository.fetchPendingCourses())
         .orElseThrow(() -> new ResourceNotFoundException("Courses Not Found"));
     List<CoursePayload> coursePayloads = new ArrayList<>();
     for (Course course : courses) {
@@ -121,12 +120,17 @@ public class CourseServiceImpl implements CourseService {
     Course course = CourseMapper.INSTANCE.toCourse(coursePayload);
 
     String label = coursePayload.getSemester().getLabel();
-    String instructorCode = coursePayload.getInstructor().getCode();
+    Instructor instructor;
+    if(coursePayload.getInstructor() == null) {
+      instructor = null;
+    }else{
+      String instructorCode = coursePayload.getInstructor().getCode();
+      instructor = instructorRepository.findByCode(
+          instructorCode).orElseThrow(() -> new ResourceNotFoundException("Instructor Not Found"));
+    }
 
     Semester semester = semesterRepository.findByLabel(label)
         .orElseThrow(() -> new ResourceNotFoundException("Semester Not Found"));
-    Instructor instructor = instructorRepository.findByCode(
-        instructorCode).orElseThrow(() -> new ResourceNotFoundException("Instructor Not Found"));
 
     course.setCode(CommonUtility.generateCode("CR-"));
     course.setSemester(semester);
@@ -174,9 +178,12 @@ public class CourseServiceImpl implements CourseService {
         payload.getSemester().getLabel());
     optionalSemester.ifPresent(course::setSemester);
 
-    Optional<Instructor> optionalInstructor = instructorRepository.findByCode(
-        payload.getInstructor().getCode());
-    optionalInstructor.ifPresent(course::setInstructor);
+    if(payload.getInstructor() != null) {
+      Optional<Instructor> optionalInstructor = instructorRepository.findByCode(
+          payload.getInstructor().getCode());
+      optionalInstructor.ifPresent(course::setInstructor);
+    }
+
 
     courseRepository.save(course);
 

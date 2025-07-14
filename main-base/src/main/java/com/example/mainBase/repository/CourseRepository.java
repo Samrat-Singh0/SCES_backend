@@ -37,7 +37,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
           where a.entityName = 'Course' 
           and c.checked='PENDING'
       """)
-  List<Course> fetchPendingCourses(long loggedInUserId);
+  List<Course> fetchPendingCourses();
 
   @Query(value = "SELECT c from Course c "
       + "JOIN EnrollmentCourse ec ON ec.course.id = c.id "

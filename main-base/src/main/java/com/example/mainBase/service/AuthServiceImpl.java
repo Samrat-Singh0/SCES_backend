@@ -8,6 +8,7 @@ import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.security.CustomUserDetailService;
+import com.example.mainBase.util.PasswordValidator;
 import com.example.mainBase.util.ResponseBuilder;
 import java.util.Date;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
   private final JwtUtil jwtUtil;
   private final UserService userService;
   private final AuditLogService auditLogService;
+  private final PasswordValidator passwordValidator;
 
   public ResponseEntity<ResponseDto> login(LoginRequest loginRequest) {
     try {
@@ -47,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
         return ResponseBuilder.getFailedMessage("Your account is inactive");
       }
 
+
       LoginUserResponse loginUserResponse = LoginUserResponse.builder()
           .email(user.getEmail())
           .firstName(user.getFirstName())
@@ -62,6 +65,20 @@ public class AuthServiceImpl implements AuthService {
 
       ResponseDto responseBody = new ResponseDto(true, "Logged-In",
           loginUserResponse);
+
+//      boolean isPasswordValid = passwordValidator.validatePassword(loginRequest.getPassword());
+//      isPasswordValid = !isPasswordValid;           //todo: doesn't work if i directly assign !isPasswordPolicy as condition in if
+
+//      if(isPasswordValid) {
+//        return ResponseEntity
+//            .badRequest()
+//            .header(HttpHeaders.AUTHORIZATION, accessToken)
+//            .header("X-Refresh-Token", refreshToken)
+//            .body(ResponseDto.builder()
+//                .message("Password does not meet policy requirements. Please change your password.")
+//                .body(responseBody)
+//                .build());
+//      }
 
       return ResponseEntity.ok()
           .header(HttpHeaders.AUTHORIZATION, accessToken)

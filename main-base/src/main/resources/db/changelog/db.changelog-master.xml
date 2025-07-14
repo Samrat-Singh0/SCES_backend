@@ -518,4 +518,8 @@
   <changeSet id="2025-07-07-drop-table-refresh-token" author="Samrat Singh">
     <dropTable tableName="refresh_token"/>
   </changeSet>
+
+  <changeSet id="2025-07-14-re-remove-null-constraint-in-course-table" author="Samrat Singh">
+    <dropNotNullConstraint tableName="course" columnName="instructor_id" columnDataType="bigint"/>
+  </changeSet>
 </databaseChangeLog>
