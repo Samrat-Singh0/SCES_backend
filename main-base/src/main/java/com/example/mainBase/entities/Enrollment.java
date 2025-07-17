@@ -37,7 +37,7 @@ public class Enrollment {
   @JoinColumn(name = "student_id", nullable = false)
   private Student student;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "semester_id", nullable = false)
   private Semester semester;
 

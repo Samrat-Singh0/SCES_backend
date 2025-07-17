@@ -55,8 +55,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity<ResponseDto> getActiveUsers(Pageable pageable) {
-    User user = commonBeanUtility.getLoggedInUser();
-
 
     Page<User> userPage = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE, pageable);
 

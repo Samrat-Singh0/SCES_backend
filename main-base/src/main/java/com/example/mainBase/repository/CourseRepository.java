@@ -28,8 +28,8 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
 
   Page<Course> findAll(Specification<Course> spec, Pageable pageable);
 
-  @Query(value = "select c from Course c where c.instructor.id=:instructorId and c.checked='CHECKED' and c.activeStatus='ACTIVE'")
-  List<Course> findByInstructorId(Long instructorId);
+//  @Query(value = "select c from Course c where c.instructor.id=:instructorId and c.checked='CHECKED' and c.activeStatus='ACTIVE'")
+//  List<Course> findByInstructorId(Long instructorId);
 
   @Query("""
           SELECT c from Course c 
@@ -47,6 +47,12 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
       + "OR e.completionStatus='COMPLETED'")
   List<Course> fetchCourseForStudent(Long studentId);
 
+  @Query(value = "SELECT c from Course c "
+      + "WHERE NOT EXISTS ("
+      + "SELECT sc FROM SemesterCourse sc WHERE sc.course = c) "
+      + "AND c.checked='CHECKED' AND c.activeStatus='ACTIVE'")
+  List<Course> fetchCourseWithNoSemester();
+
   @Query(value = "SELECT "
       + "c.name, "
       + "s.label, "
@@ -62,4 +68,5 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
       + "group by c.id"
       , nativeQuery = true)
   List<CourseReportDto> fetchCourseReports();                  //query returns a list of objects. tara entity use nagareko vayera JPA cannot map the objects fetched.
+
 }

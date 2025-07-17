@@ -522,4 +522,82 @@
   <changeSet id="2025-07-14-re-remove-null-constraint-in-course-table" author="Samrat Singh">
     <dropNotNullConstraint tableName="course" columnName="instructor_id" columnDataType="bigint"/>
   </changeSet>
+
+  <changeSet id="2025-07-15-remove-semester-id-from-course" author="Samrat Singh">
+    <dropForeignKeyConstraint baseTableName="course" constraintName="fk_course_semester"/>
+    <dropColumn tableName="course" columnName="semester_id"/>
+  </changeSet>
+
+  <changeSet id="2025-07-15-create-semester-course" author="Samrat Singh">
+    <createTable tableName="semester_course">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="semester_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="course_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="semester_course"
+      baseColumnNames="semester_id"
+      constraintName="fk_semester_course_semester"
+      referencedTableName="semester"
+      referencedColumnNames="id"/>
+
+    <addForeignKeyConstraint
+      baseTableName="semester_course"
+      baseColumnNames="course_id"
+      constraintName="fk_semester_course_course"
+      referencedTableName="course"
+      referencedColumnNames="id"/>
+
+    <addUniqueConstraint
+      tableName="semester_course"
+      columnNames="course_id"
+      constraintName="uk_semester_course_course_id_unique"/>
+  </changeSet>
+
+  <changeSet id="2025-07-15-create-semester-course-instructor" author="Samrat Singh">
+    <createTable tableName="semester_course_instructor">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="semester_course_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="instructor_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="semester_course_instructor"
+      baseColumnNames="semester_course_id"
+      constraintName="fk_semester-course_instructor_semester-course"
+      referencedTableName="semester_course"
+      referencedColumnNames="id"/>
+
+    <addForeignKeyConstraint
+      baseTableName="semester_course_instructor"
+      baseColumnNames="instructor_id"
+      constraintName="fk_semester_course_instructor_instructor"
+      referencedTableName="instructor"
+      referencedColumnNames="id"/>
+
+  </changeSet>
+
+  <changeSet id="2025-07-16-drop-instructor-id-column-from-course" author="Samrat Singh">
+    <dropForeignKeyConstraint
+      baseTableName="course"
+      constraintName="fk_course_instructor"/>
+    <dropColumn tableName="course" columnName="instructor_id"/>
+  </changeSet>
 </databaseChangeLog>

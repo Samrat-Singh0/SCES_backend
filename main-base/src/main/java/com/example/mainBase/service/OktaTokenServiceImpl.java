@@ -1,7 +1,6 @@
 package com.example.mainBase.service;
 
 import com.example.mainBase.dto.OktaTokenRequestDto;
-import com.example.mainBase.dto.OktaTokenResponseDto;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.util.CommonBeanUtility;
 import java.time.Instant;
@@ -9,9 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -74,20 +71,20 @@ public class OktaTokenServiceImpl implements OktaTokenService {
 
     HttpEntity<OktaTokenRequestDto> request = new HttpEntity<>(tokenRequestDto, headers);
 
-    try {
-      ResponseEntity<OktaTokenResponseDto> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, request, OktaTokenResponseDto.class);
-
-      if(response.getStatusCode().is2xxSuccessful()) {
-        OktaTokenResponseDto responseDto = response.getBody();
-        assert responseDto != null;         //check if null, does not handle exception if occurs
-        this.cachedToken = responseDto.getAccessToken();
-        this.tokenExpiry = Instant.now().plusSeconds(responseDto.getExpiresIn());
-      }else {
-        throw new RuntimeException("Failed to fetch new token. Status:: " + response.getStatusCode());
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to fetch new token.", e);
-    }
+//    try {
+//      ResponseEntity<OktaTokenResponseDto> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, request, OktaTokenResponseDto.class);
+//
+//      if(response.getStatusCode().is2xxSuccessful()) {
+//        OktaTokenResponseDto responseDto = response.getBody();
+//        assert responseDto != null;         //check if null, does not handle exception if occurs
+//        this.cachedToken = responseDto.getAccessToken();
+//        this.tokenExpiry = Instant.now().plusSeconds(responseDto.getExpiresIn());
+//      }else {
+//        throw new RuntimeException("Failed to fetch new token. Status:: " + response.getStatusCode());
+//      }
+//    } catch (Exception e) {
+//      throw new RuntimeException("Failed to fetch new token.", e);
+//    }
 
   }
 

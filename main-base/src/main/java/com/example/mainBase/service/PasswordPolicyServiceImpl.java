@@ -10,6 +10,7 @@ import com.example.mainBase.mapper.PasswordPolicyMapper;
 import com.example.mainBase.repository.PasswordPolicyRepository;
 import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class PasswordPolicyServiceImpl implements PasswordPolicyService {
   }
 
   @Override
+  @Transactional
   public ResponseEntity<ResponseDto> updatePolicies(List<PasswordPolicyRequest> policies) {
     User user = commonBeanUtility.getLoggedInUser();
     policies.forEach(updatedPolicy -> {

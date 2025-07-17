@@ -1,12 +1,15 @@
 package com.example.mainBase.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,4 +37,7 @@ public class Semester {
 
   @Column(nullable = false)
   private LocalDate endDate;
+
+  @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL, orphanRemoval = true)
+  List<SemesterCourse> semesterCourses;
 }

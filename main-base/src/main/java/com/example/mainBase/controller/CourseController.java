@@ -52,6 +52,11 @@ public class CourseController {
     return courseService.getCourseOnRoles();
   }
 
+  @GetMapping("/no-sem")
+  public ResponseEntity<ResponseDto> getCourseNoSem() {
+    return courseService.getCoursesWithNoSemester();
+  }
+
   @PostMapping("/add")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> addCourse(@RequestBody CoursePayload course) {

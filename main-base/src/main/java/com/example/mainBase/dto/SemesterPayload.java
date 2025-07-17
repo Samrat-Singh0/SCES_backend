@@ -2,6 +2,7 @@ package com.example.mainBase.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class SemesterPayload {
   private BigDecimal fee;
   private LocalDate startDate;
   private LocalDate endDate;
+  private List<CoursePayload> course;
 }

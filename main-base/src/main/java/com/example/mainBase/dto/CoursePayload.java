@@ -1,6 +1,7 @@
 package com.example.mainBase.dto;
 
 import com.example.mainBase.enums.Checked;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,7 @@ public class CoursePayload {
   private String name;
   private int creditHours;
   private int fullMarks;
-  private SemesterPayload semester;
-  private InstructorPayload instructor;
   private UserRequestPayload addedBy;
   private Checked checked;
+  private List<InstructorPayload> instructors;
 }

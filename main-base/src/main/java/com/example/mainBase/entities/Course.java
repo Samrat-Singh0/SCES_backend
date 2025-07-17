@@ -9,8 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,14 +36,6 @@ public class Course {
 
   @Column(nullable = false)
   private int fullMarks;
-
-  @ManyToOne
-  @JoinColumn(name = "semester_id")
-  private Semester semester;
-
-  @ManyToOne
-  @JoinColumn(name = "instructor_id")
-  private Instructor instructor;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

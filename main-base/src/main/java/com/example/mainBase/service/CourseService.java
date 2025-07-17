@@ -18,12 +18,13 @@ public interface CourseService {
 
   ResponseEntity<ResponseDto> getCourseOnRoles();
 
+  ResponseEntity<ResponseDto> getCoursesWithNoSemester();
+
   ResponseEntity<ResponseDto> addCourse(CoursePayload payload);
 
   ResponseEntity<ResponseDto> deleteCourse(String code, String remarks);
 
   ResponseEntity<ResponseDto> updateCourse(CoursePayload payload);
-
 
   ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCourse, Pageable pageable);
 

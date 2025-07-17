@@ -32,10 +32,8 @@ import com.example.mainBase.enums.Checked;
 import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.EnrollStatus;
 import com.example.mainBase.enums.Role;
-import com.example.mainBase.mapper.EnrollmentMapper;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
-import com.example.mainBase.repository.InstructorRepository;
 import com.example.mainBase.repository.SemesterRepository;
 import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.util.CommonBeanUtility;
@@ -320,8 +318,8 @@ public class EnrollmentServiceImplTest {
         .name("Spring 2024")
         .creditHours(90)
         .fullMarks(60)
-        .semester(getSemester())
-        .instructor(getInstructor())
+//        .semester(getSemester())
+//        .instructor(getInstructor())
         .checked(Checked.CHECKED)
         .activeStatus(ActiveStatus.ACTIVE)
         .remarks("Mock user for testing.")
