@@ -34,8 +34,13 @@ public class AttendanceController {
     return attendanceService.addAttendance(payload);
   }
 
-  @GetMapping("/rate/{courseCode}")
-  public ResponseEntity<ResponseDto> getAttendanceRate(@PathVariable String courseCode) {
-    return attendanceService.getTotalAttendance(courseCode);
+  @GetMapping("/rate/student/{courseCode}")
+  public ResponseEntity<ResponseDto> getAttendanceRateOfStudent(@PathVariable String courseCode) {
+    return attendanceService.getTotalAttendanceOfStudent(courseCode);
+  }
+
+  @GetMapping("/rate/course")
+  public ResponseEntity<ResponseDto> getAttendanceRateOfCourse() {
+    return attendanceService.getTotalAttendanceOfCourse();
   }
 }

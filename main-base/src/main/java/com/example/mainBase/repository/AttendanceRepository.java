@@ -2,8 +2,10 @@ package com.example.mainBase.repository;
 
 import com.example.mainBase.entities.Attendance;
 import com.example.mainBase.entities.Course;
+import com.example.mainBase.entities.Student;
 import com.example.mainBase.enums.CompletionStatus;
-import com.example.mainBase.model.AttendanceRate;
+import com.example.mainBase.projection.AttendanceRateOfCourseProjection;
+import com.example.mainBase.projection.AttendanceRateOfStudentProjection;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -28,12 +30,24 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
   Optional<Attendance> findByCourseAndDate(Course course, LocalDate date);
 
   @Query(value = "select "
-      + "s.code, "
-      + "sum(case when a.attendanceStatus='PRESENT' then 1 else 0 end ), "
-      + "count(a) "
+      + "s.code as studentCode, "
+      + "sum(case when a.attendanceStatus='PRESENT' then 1 else 0 end ) as presentDays, "
+      + "count(a) as totalDays, "
+      + "min(a.date) as startDate "
       + "from Attendance a "
       + "join Student s on a.student.id=s.id "
       + "where a.course.code=:courseCode "
       + "GROUP BY s.code")
-  List<AttendanceRate> getAttendanceCountByCourse(String courseCode);
+  List<AttendanceRateOfStudentProjection> getAttendanceCountByCourse(String courseCode);
+
+  @Query(value = "select "
+      + "c.code as courseCode, "
+      + "sum(case when a.attendanceStatus='PRESENT' then 1 else 0 end ) as presentDays, "
+      + "count(a) as totalDays "
+      + "from Attendance a "
+      + "join Course c on a.course.id=c.id "
+      + "where a.student=:student "
+      + "group by c.code")
+  List<AttendanceRateOfCourseProjection> getAttendanceCountByStudent(Student student);
+
 }

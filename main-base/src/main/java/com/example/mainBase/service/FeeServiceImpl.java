@@ -31,6 +31,7 @@ public class FeeServiceImpl implements FeeService {
   private final EnrollmentRepository enrollmentRepository;
   private final AuditLogService auditLogService;
   private final CommonBeanUtility commonBeanUtility;
+//  private final BigDecimal THRESHOLD = BigDecimal.valueOf(20);
 
   @Override
   public ResponseEntity<ResponseDto> getFeeHistory(String enrollmentCode) {

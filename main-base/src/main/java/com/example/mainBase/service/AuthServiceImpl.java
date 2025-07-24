@@ -4,9 +4,13 @@ import com.example.mainBase.auth.jwt.JwtUtil;
 import com.example.mainBase.dto.LoginRequest;
 import com.example.mainBase.dto.LoginUserResponse;
 import com.example.mainBase.dto.ResponseDto;
+import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.enums.AuditAction;
+import com.example.mainBase.enums.EnrollStatus;
+import com.example.mainBase.enums.Role;
+import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.security.CustomUserDetailService;
 import com.example.mainBase.util.PasswordValidator;
 import com.example.mainBase.util.ResponseBuilder;
@@ -30,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
   private final JwtUtil jwtUtil;
   private final UserService userService;
   private final AuditLogService auditLogService;
-  private final PasswordValidator passwordValidator;
+  private final StudentRepository studentRepository;
 
   public ResponseEntity<ResponseDto> login(LoginRequest loginRequest) {
     try {
@@ -46,7 +50,14 @@ public class AuthServiceImpl implements AuthService {
       User user = userService.findUserByEmail(loginRequest.getEmail());
 
       if (user.getActiveStatus().equals(ActiveStatus.INACTIVE)) {
-        return ResponseBuilder.getFailedMessage("Your account is inactive");
+        return ResponseBuilder.getFailedMessage("Your account is inactive.");
+      }
+
+      if (user.getRole().equals(Role.STUDENT)) {
+        Student student = studentRepository.findByUser(user);
+        if(student.getEnrollStatus().equals(EnrollStatus.QUIT) || student.getEnrollStatus().equals(EnrollStatus.REJECTED)) {
+          return ResponseBuilder.getFailedMessage("You are not a valid student.");
+        }
       }
 
 
@@ -63,7 +74,13 @@ public class AuthServiceImpl implements AuthService {
 
       auditLogService.log(user, AuditAction.LOGGED_IN, "", null);
 
-      ResponseDto responseBody = new ResponseDto(true, "Logged-In",
+      String message = "Logged-In";
+
+      if(loginUserResponse.getMustChangePassword()==true) {
+        message = "Password policy has been changed. Please update your password.";
+      }
+
+      ResponseDto responseBody = new ResponseDto(true, message,
           loginUserResponse);
 
 //      boolean isPasswordValid = passwordValidator.validatePassword(loginRequest.getPassword());

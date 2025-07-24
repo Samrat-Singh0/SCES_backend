@@ -13,7 +13,8 @@ import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.Role;
 import com.example.mainBase.exception.ResourceNotFoundException;
 import com.example.mainBase.mapper.AttendanceMapper;
-import com.example.mainBase.model.AttendanceRate;
+import com.example.mainBase.model.AttendanceRateOfCourse;
+import com.example.mainBase.model.AttendanceRateOfStudent;
 import com.example.mainBase.repository.AttendanceRepository;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -108,14 +110,43 @@ public class AttendanceServiceImpl implements AttendanceService {
   }
 
   @Override
-  public ResponseEntity<ResponseDto> getTotalAttendance(String courseCode) {
-    List<AttendanceRate> attendanceRateList = attendanceRepository.getAttendanceCountByCourse(courseCode);
+  public ResponseEntity<ResponseDto> getTotalAttendanceOfStudent(String courseCode) {
+
+    List<AttendanceRateOfStudent> attendanceRateList = attendanceRepository.getAttendanceCountByCourse(courseCode)
+        .stream()
+        .map(projection -> AttendanceRateOfStudent.builder()
+            .studentCode(projection.getStudentCode())
+            .presentDays(projection.getPresentDays())
+            .totalDays(projection.getTotalDays())
+            .startDate(projection.getStartDate())
+            .build())
+        .collect(Collectors.toList());
 
     if (!attendanceRateList.isEmpty()) {
       return ResponseBuilder.success("Fetched Attendance Rate Successfully", attendanceRateList);
     }else {
       return ResponseBuilder.getFailedMessage("No Attendance Rate found");
     }
+  }
 
+  @Override
+  public ResponseEntity<ResponseDto> getTotalAttendanceOfCourse() {
+
+    User user = commonBeanUtility.getLoggedInUser();
+    Student student = studentRepository.findByUser(user);
+
+    List<AttendanceRateOfCourse> attendanceRateList = attendanceRepository.getAttendanceCountByStudent(student).stream()
+        .map(projection -> AttendanceRateOfCourse.builder()
+            .courseCode(projection.getCourseCode())
+            .presentDays(projection.getPresentDays())
+            .totalDays(projection.getTotalDays())
+            .build())
+        .collect(Collectors.toList());
+
+    if (!attendanceRateList.isEmpty()) {
+      return ResponseBuilder.success("Fetched Attendance Rate Successfully", attendanceRateList);
+    }else {
+      return ResponseBuilder.getFailedMessage("No Attendance Rate found");
+    }
   }
 }

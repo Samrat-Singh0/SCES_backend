@@ -163,6 +163,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   @Transactional
   public ResponseEntity<ResponseDto> update(EnrollmentResponsePayload payload) {
     try {
+      User user = commonBeanUtility.getLoggedInUser();
       Enrollment existingEnrollment = enrollmentRepository.findByCode(
           payload.getCode());
       if (existingEnrollment == null) {
@@ -171,6 +172,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
       if (payload.getCompletionStatus().equals(CompletionStatus.COMPLETED)) {
         existingEnrollment.setCompletionDate(LocalDate.now());
+      }
+
+      if(payload.getCompletionStatus().equals(CompletionStatus.DROPPED)) {
+        Student student = studentRepository.findByUser(user);
+        if (student != null) {
+          studentRepository.setStudentEnrollmentStatusToQuit(student.getId());
+        }
       }
 
       existingEnrollment.setCompletionStatus(payload.getCompletionStatus());

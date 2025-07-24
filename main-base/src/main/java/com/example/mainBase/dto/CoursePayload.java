@@ -18,4 +18,5 @@ public class CoursePayload {
   private UserRequestPayload addedBy;
   private Checked checked;
   private List<InstructorPayload> instructors;
+  private SemesterPayload semester;
 }

@@ -130,7 +130,6 @@ public class UserServiceImpl implements UserService {
   public ResponseEntity<ResponseDto> getUserBySearchText(
       FilterUser filterCriteria, Pageable pageable) {
     try {
-      Page<UserRequestPayload> users;
       List<User> userList = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
 
       if (userList.isEmpty()) {
@@ -188,6 +187,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void setMustChangePassword() {
-
+    userRepository.setMustChangePasswordForAll();
   }
+
+
 }

@@ -16,4 +16,5 @@ public class AttendancePayload {
   private StudentPayload student;
   private CoursePayload course;
   private AttendanceStatus attendanceStatus;
+
 }

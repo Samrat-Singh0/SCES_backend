@@ -29,6 +29,8 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
       + "and e.completionStatus=:completionStatus")
   List<Grade> findByStudentId(Long studentId, CompletionStatus completionStatus);
 
+  Grade findByStudent(Student student);
+
   Optional<Grade> findByStudentAndCourseAndEnrollment(Student student, Course course,
       Enrollment enrollment);
 

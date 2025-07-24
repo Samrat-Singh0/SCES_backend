@@ -5,6 +5,7 @@ import com.example.mainBase.entities.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface StudentRepository extends JpaRepository<Student, Long> {
@@ -19,8 +20,11 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
       + "join Enrollment e on s.id=e.student.id "
       + "join EnrollmentCourse ec on ec.enrollment.id=e.id "
       + "join Course c on c.id=ec.course.id "
-      + "and (e.completionStatus='RUNNING' "
-      + ")")
+      + "WHERE c.id=:courseId "
+      + "and e.completionStatus='RUNNING' ")
   List<Student> findByCourse_Id(Long courseId);
 
+  @Modifying
+  @Query("update Student s SET s.enrollStatus='QUIT' WHERE s.id=:id")
+  void setStudentEnrollmentStatusToQuit(Long id);
 }

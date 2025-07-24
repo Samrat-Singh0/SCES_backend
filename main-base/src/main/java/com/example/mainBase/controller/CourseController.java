@@ -57,11 +57,11 @@ public class CourseController {
     return courseService.getCoursesWithNoSemester();
   }
 
-  @PostMapping("/add")
-  @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> addCourse(@RequestBody CoursePayload course) {
-    return courseService.addCourse(course);
-  }
+//  @PostMapping("/add")
+//  @PreAuthorize("hasRole(@securityRoles.SUPER)")
+//  public ResponseEntity<ResponseDto> addCourse(@RequestBody CoursePayload course) {
+//    return courseService.addCourse(course);
+//  }
 
   @PostMapping("/delete/{code}")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")

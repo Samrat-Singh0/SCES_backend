@@ -2,6 +2,7 @@ package com.example.mainBase.service;
 
 import com.example.mainBase.dto.GradePayload;
 import com.example.mainBase.dto.ResponseDto;
+import com.example.mainBase.entities.AuditLog;
 import com.example.mainBase.entities.Course;
 import com.example.mainBase.entities.Enrollment;
 import com.example.mainBase.entities.Grade;
@@ -9,11 +10,13 @@ import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.enums.CompletionStatus;
+import com.example.mainBase.enums.Role;
 import com.example.mainBase.exception.ResourceNotFoundException;
 import com.example.mainBase.mapper.GradeMapper;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
 import com.example.mainBase.repository.GradeRepository;
+import com.example.mainBase.repository.InstructorRepository;
 import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.CommonUtility;
@@ -63,6 +66,21 @@ public class GradeServiceImpl implements GradeService {
 
     Student student = studentRepository.findByCode(payload.getStudent().getCode());
     Course course = courseRepository.findByCode(payload.getCourse().getCode());
+    AuditAction action = AuditAction.CREATED;
+
+    Grade oldGrade = gradeRepository.findByStudent(student);
+
+    if(oldGrade != null) {
+      User user = commonBeanUtility.getLoggedInUser();
+
+      AuditLog createdLog = Optional.ofNullable(auditLogService.getLog(AuditAction.UPDATED, "Grade", oldGrade.getId()))
+          .orElseThrow(() -> new ResourceNotFoundException("AuditLog Not Found"));
+
+      if(user.getRole().equals(Role.INSTRUCTOR) && !createdLog.getUser().getId().equals(user.getId()) ){
+        return ResponseBuilder.getFailedMessage("You are not permitted to edit.");
+      }
+    }
+
     List<Enrollment> enrollmentList = enrollmentRepository.findByStudent_idAndCompletionStatus(
         student.getId(),
         CompletionStatus.RUNNING);
@@ -73,6 +91,7 @@ public class GradeServiceImpl implements GradeService {
         enrollment);
     Grade grade;
     if (existingGrade.isEmpty()) {
+      action = AuditAction.UPDATED;
       grade = Grade.builder()
           .code(CommonUtility.generateCode("GR-"))
           .course(course)
@@ -88,7 +107,7 @@ public class GradeServiceImpl implements GradeService {
     }
 
     gradeRepository.save(grade);
-    auditLogService.log(commonBeanUtility.getLoggedInUser(), AuditAction.UPDATED, "Grade",
+    auditLogService.log(commonBeanUtility.getLoggedInUser(), action, "Grade",
         grade.getId());
 
     return ResponseBuilder.success("Grades Added Successfully", null);

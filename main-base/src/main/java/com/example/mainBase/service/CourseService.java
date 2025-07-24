@@ -2,6 +2,7 @@ package com.example.mainBase.service;
 
 import com.example.mainBase.dto.CoursePayload;
 import com.example.mainBase.dto.ResponseDto;
+import com.example.mainBase.entities.Course;
 import com.example.mainBase.model.FilterCourse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public interface CourseService {
 
   ResponseEntity<ResponseDto> getCoursesWithNoSemester();
 
-  ResponseEntity<ResponseDto> addCourse(CoursePayload payload);
+  Course addCourse(CoursePayload payload);
 
   ResponseEntity<ResponseDto> deleteCourse(String code, String remarks);
 

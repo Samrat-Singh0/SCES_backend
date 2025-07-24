@@ -19,6 +19,8 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
 
   Course findByCode(String code);
 
+
+
   List<Course> findByChecked(Checked checked);
 
   List<Course> findByCheckedAndActiveStatus(Checked checked, ActiveStatus active);
@@ -32,9 +34,9 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
 //  List<Course> findByInstructorId(Long instructorId);
 
   @Query("""
-          SELECT c from Course c 
-          join AuditLog a on c.id = a.entityId 
-          where a.entityName = 'Course' 
+          SELECT c from Course c
+          join AuditLog a on c.id = a.entityId
+          where a.entityName = 'Course'
           and c.checked='PENDING'
       """)
   List<Course> fetchPendingCourses();
@@ -50,7 +52,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>,
   @Query(value = "SELECT c from Course c "
       + "WHERE NOT EXISTS ("
       + "SELECT sc FROM SemesterCourse sc WHERE sc.course = c) "
-      + "AND c.checked='CHECKED' AND c.activeStatus='ACTIVE'")
+      + "AND (c.checked='CHECKED' OR c.checked='PENDING') AND c.activeStatus='ACTIVE'")
   List<Course> fetchCourseWithNoSemester();
 
   @Query(value = "SELECT "
