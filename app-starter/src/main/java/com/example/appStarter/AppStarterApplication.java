@@ -8,11 +8,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(scanBasePackages = {
     "com.example",
     "com.example.appStarter",
-    "com.example.reportingAndAnalytics",
     "com.example.mainBase"
 })
-@EnableJpaRepositories({"com.example.mainBase",
-    "com.example.reportingAndAnalytics"})
+@EnableJpaRepositories({"com.example.mainBase"})
 @EntityScan("com.example.mainBase")
 public class AppStarterApplication {
 

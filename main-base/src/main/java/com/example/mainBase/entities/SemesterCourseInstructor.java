@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -26,10 +27,10 @@ public class SemesterCourseInstructor {
   private Long id;
 
   @ManyToOne
-//  @JoinColumn(name = "semester_course_id",nullable = false)
+  @JoinColumn(name = "semester_course_id",nullable = false)
   private SemesterCourse semesterCourse;
 
   @ManyToOne
-//  @JoinColumn(name = "instructor_id",nullable = false)
+  @JoinColumn(name = "instructor_id",nullable = false)
   private Instructor instructor;
 }

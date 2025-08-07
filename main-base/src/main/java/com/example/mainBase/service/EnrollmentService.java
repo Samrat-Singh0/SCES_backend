@@ -11,7 +11,7 @@ public interface EnrollmentService {
 
   ResponseEntity<ResponseDto> getEnrollments();
 
-  ResponseEntity<ResponseDto> getEnrollments(Pageable pageable);
+  ResponseEntity<ResponseDto> getEnrollments(FilterEnrollment criteria, Pageable pageable);
 
   ResponseEntity<ResponseDto> getPendingEnrollments();
 
@@ -19,5 +19,4 @@ public interface EnrollmentService {
 
   ResponseEntity<ResponseDto> update(EnrollmentResponsePayload payload);
 
-  ResponseEntity<ResponseDto> getCourseBySearchText(FilterEnrollment criteria, Pageable pageable);
 }

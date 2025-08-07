@@ -3,6 +3,7 @@ package com.example.mainBase.controller;
 import com.example.mainBase.dto.GradePayload;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.service.GradeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +35,7 @@ public class GradeController {
 
   @PostMapping("/add")
   @PreAuthorize("hasRole(@securityRoles.INSTRUCTOR)")
-  ResponseEntity<ResponseDto> addGrade(@RequestBody GradePayload payload) {
+  ResponseEntity<ResponseDto> addGrade(@RequestBody @Valid GradePayload payload) {
     return this.gradeService.addGrade(payload);
   }
 

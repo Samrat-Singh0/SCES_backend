@@ -13,7 +13,7 @@ public interface CourseService {
 
   ResponseEntity<ResponseDto> getAllCourses();
 
-  ResponseEntity<ResponseDto> getAllCourses(Pageable pageable);
+  ResponseEntity<ResponseDto> getAllCourses(FilterCourse criteria, Pageable pageable);
 
   ResponseEntity<ResponseDto> getPendingCourses();
 
@@ -26,7 +26,5 @@ public interface CourseService {
   ResponseEntity<ResponseDto> deleteCourse(String code, String remarks);
 
   ResponseEntity<ResponseDto> updateCourse(CoursePayload payload);
-
-  ResponseEntity<ResponseDto> getCourseBySearchText(FilterCourse filterCourse, Pageable pageable);
 
 }

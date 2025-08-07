@@ -26,10 +26,11 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
       + "join Enrollment e "
       + "on g.enrollment.id=e.id "
       + "where g.student.id=:studentId "
-      + "and e.completionStatus=:completionStatus")
-  List<Grade> findByStudentId(Long studentId, CompletionStatus completionStatus);
+      + "and (e.completionStatus='RUNNING' "
+      + "or e.completionStatus='COMPLETED')")
+  List<Grade> findByStudentId(Long studentId);
 
-  Grade findByStudent(Student student);
+  Grade findByStudentAndCourse(Student student, Course course);
 
   Optional<Grade> findByStudentAndCourseAndEnrollment(Student student, Course course,
       Enrollment enrollment);

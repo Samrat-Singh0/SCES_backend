@@ -47,8 +47,6 @@ public class FeeServiceImpl implements FeeService {
       FeeResponsePayload payload = feeResponsePayloadList.get(i);
 
       AuditLog auditLog = auditLogService.getLog(AuditAction.CREATED,"Fee", fee.getId());
-      System.out.println(auditLog.getActionTime());
-      System.out.println(auditLog.getActionTime().toLocalDate());
       payload.setPaidDate(auditLog.getActionTime().toLocalDate());
     }
 

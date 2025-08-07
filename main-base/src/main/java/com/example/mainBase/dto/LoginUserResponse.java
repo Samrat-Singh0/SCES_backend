@@ -11,7 +11,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class LoginUserResponse {
 
-  private String role;
+  private RoleDto role;
 
   @Email(message = "Invalid email format")
   private String email;

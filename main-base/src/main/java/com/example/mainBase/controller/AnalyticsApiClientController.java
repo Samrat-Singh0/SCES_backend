@@ -16,7 +16,7 @@ public class AnalyticsApiClientController {
   private final AnalyticsApiClientService analyticsApiClientService;
 
   @GetMapping("/list")
-  public ResponseEntity<ResponseDto> getAnalyticsData() {
+  public ResponseEntity<ResponseDto> getAnalyticsData() throws Exception {
     return analyticsApiClientService.getAnalytics();
   }
 }

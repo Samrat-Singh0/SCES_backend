@@ -1,5 +1,6 @@
 package com.example.mainBase.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +8,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CourseReportDto {
-
   private String courseName;
   private String semester;
   private Long totalEnrollments;

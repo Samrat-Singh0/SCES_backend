@@ -22,8 +22,8 @@ public class UserRequestPayload {
   private String email;
   private String address;
 
-  @Pattern(regexp = "\\d{10}", message = "Mobile number must be 10 digits.")
+  @Pattern(regexp = "^(97|98)\\d{8}$", message = "Mobile number must be 10 digits.")
   private String phoneNumber;
-  private String role;
+  private RoleDto newRole;
   private boolean mustChangePassword;
 }

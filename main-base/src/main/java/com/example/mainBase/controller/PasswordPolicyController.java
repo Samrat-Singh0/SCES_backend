@@ -3,6 +3,7 @@ package com.example.mainBase.controller;
 import com.example.mainBase.dto.PasswordPolicyRequest;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.service.PasswordPolicyService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class PasswordPolicyController {
 
   @PutMapping("/update")
   public ResponseEntity<ResponseDto> updatePolicies(
-      @RequestBody List<PasswordPolicyRequest> policies) {
+      @RequestBody @Valid List<PasswordPolicyRequest> policies) {
     return passwordPolicyService.updatePolicies(policies);
   }
 }

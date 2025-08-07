@@ -81,7 +81,8 @@ public class EnrollmentServiceImplTest {
   void getEnrollmentForStudentTest() {
 
     User user = getUser();
-    user.setRole(Role.STUDENT);
+    user.getNewRole().setRoleType(Role.STUDENT);
+
 
     Student student = getStudent();
 
@@ -103,7 +104,8 @@ public class EnrollmentServiceImplTest {
   @Test
   void getEnrollmentForInstructorTest() {
     User user = getUser();
-    user.setRole(Role.SUPER_ADMIN);
+    user.getNewRole().setRoleType(Role.SUPER_ADMIN);
+
 
     Enrollment enrollment = new Enrollment();
     List<Enrollment> enrollments = List.of(enrollment);
@@ -171,7 +173,8 @@ public class EnrollmentServiceImplTest {
     enrollmentPayload.setSemester(getSemesterPayload());
 
     User user = getUser();
-    user.setRole(Role.STUDENT);
+    user.getNewRole().setRoleType(Role.STUDENT);
+
     when(commonBeanUtility.getLoggedInUser()).thenReturn(user);
 
     Student student = getStudent();
@@ -206,7 +209,8 @@ public class EnrollmentServiceImplTest {
     enrollmentPayload.setCourses(List.of(coursePayload));
 
     User user = getUser();
-    user.setRole(Role.STUDENT);
+    user.getNewRole().setRoleType(Role.STUDENT);
+
     when(commonBeanUtility.getLoggedInUser()).thenReturn(user);
 
     Student student = getStudent();
@@ -271,7 +275,7 @@ public class EnrollmentServiceImplTest {
         .email("johndoe@email.com")
         .password("securePassword123")
         .address("123 Main St, Cityville")
-        .role(Role.STUDENT)
+//        .newRole.setRoleType(Role.STUDENT)
         .mustChangePassword(false)
         .activeStatus(ActiveStatus.ACTIVE)
         .remarks("Mock user for testing.")

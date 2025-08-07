@@ -3,6 +3,7 @@ package com.example.mainBase.controller;
 import com.example.mainBase.dto.AttendancePayload;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.service.AttendanceService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class AttendanceController {
 
   @PostMapping("/save")
   @PreAuthorize("hasRole(@securityRoles.INSTRUCTOR)")
-  public ResponseEntity<ResponseDto> saveAttendance(@RequestBody List<AttendancePayload> payload) {
+  public ResponseEntity<ResponseDto> saveAttendance(@RequestBody @Valid List<AttendancePayload> payload) {
     return attendanceService.addAttendance(payload);
   }
 

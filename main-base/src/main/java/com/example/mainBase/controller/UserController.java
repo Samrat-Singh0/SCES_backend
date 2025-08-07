@@ -25,12 +25,13 @@ public class UserController {
 
   private final UserService userService;
 
-  @GetMapping("/paged")
+  @PostMapping("/paged")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getActiveUsers(
-      @PageableDefault(size = 10, sort = "id", direction = Direction.DESC) Pageable pageable
+      @PageableDefault(size = 10, sort = "id", direction = Direction.DESC) Pageable pageable,
+      @RequestBody FilterUser filterUser
   ) {
-    return userService.getActiveUsers(pageable);
+    return userService.getActiveUsers(filterUser, pageable);
   }
 
   @GetMapping("/list")
@@ -60,9 +61,4 @@ public class UserController {
     return userService.deleteUser(code, remarks);
   }
 
-  @PostMapping("/search")
-  public ResponseEntity<ResponseDto> searchUsers(
-      @RequestBody FilterUser filterCriteria, @PageableDefault(size = 5, page = 0, sort = "firstName") Pageable pageable) {
-    return userService.getUserBySearchText(filterCriteria, pageable);
-  }
 }

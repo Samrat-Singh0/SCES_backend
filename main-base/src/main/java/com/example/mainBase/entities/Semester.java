@@ -1,8 +1,11 @@
 package com.example.mainBase.entities;
 
+import com.example.mainBase.enums.ActiveStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-//@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,4 +45,10 @@ public class Semester {
 
   @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL, orphanRemoval = true)
   List<SemesterCourse> semesterCourses;
+
+  private Integer semesterOrder;
+
+//  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private ActiveStatus activeStatus;
 }

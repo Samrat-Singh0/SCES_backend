@@ -2,6 +2,7 @@ package com.example.mainBase.dto;
 
 import com.example.attendance_fee_lib.enums.FeeStatus;
 import com.example.mainBase.enums.CompletionStatus;
+import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,8 +17,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class EnrollmentResponsePayload extends EnrollmentPayload {
 
+  @NotBlank(message = "Code is required")
   private String code;
   private StudentPayload student;
   private CompletionStatus completionStatus;

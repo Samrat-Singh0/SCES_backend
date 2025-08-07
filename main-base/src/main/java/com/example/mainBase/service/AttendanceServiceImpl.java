@@ -6,6 +6,8 @@ import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.entities.Attendance;
 import com.example.mainBase.entities.Course;
 import com.example.mainBase.entities.Enrollment;
+import com.example.mainBase.entities.Semester;
+import com.example.mainBase.entities.SemesterCourse;
 import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.AuditAction;
@@ -13,11 +15,14 @@ import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.Role;
 import com.example.mainBase.exception.ResourceNotFoundException;
 import com.example.mainBase.mapper.AttendanceMapper;
+import com.example.mainBase.mapper.SemesterMapper;
 import com.example.mainBase.model.AttendanceRateOfCourse;
 import com.example.mainBase.model.AttendanceRateOfStudent;
 import com.example.mainBase.repository.AttendanceRepository;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
+import com.example.mainBase.repository.SemesterCourseRepository;
+import com.example.mainBase.repository.SemesterRepository;
 import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
@@ -40,13 +45,16 @@ public class AttendanceServiceImpl implements AttendanceService {
   private final AttendanceRepository attendanceRepository;
   private final AuditLogService auditLogService;
   private final CommonBeanUtility commonBeanUtility;
+  private final SemesterCourseRepository semesterCourseRepository;
+  private final SemesterRepository semesterRepository;
 
 
   @Override
   public ResponseEntity<ResponseDto> getAttendanceOfDate(String courseCode, String date) {
     User user = commonBeanUtility.getLoggedInUser();
 
-    if (user.getRole().equals(Role.INSTRUCTOR)) {
+    if (user.getNewRole().getRoleType().equals(Role.INSTRUCTOR)) {
+
       Course course = Optional.ofNullable(courseRepository.findByCode(courseCode))
           .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
 
@@ -65,6 +73,14 @@ public class AttendanceServiceImpl implements AttendanceService {
 
       List<AttendancePayload> payloads = AttendanceMapper.INSTANCE.toAttendancePayloadList(
           attendances);
+
+      for (AttendancePayload payload : payloads) {
+        Course course = courseRepository.findByCode(payload.getCourse().getCode());
+        SemesterCourse semesterCourse = semesterCourseRepository.findByCourseId(course.getId());
+        Semester semester = semesterRepository.findById(semesterCourse.getSemester().getId()).orElseThrow(() -> new ResourceNotFoundException("Semester Not Found"));
+
+        payload.getCourse().setSemester(SemesterMapper.INSTANCE.toSemesterResponsePayload(semester));
+      }
 
       return ResponseBuilder.success("Fetched Attendances Successfully", payloads);
     }

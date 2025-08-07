@@ -10,6 +10,7 @@ import com.example.mainBase.entities.Semester;
 import com.example.mainBase.entities.SemesterCourse;
 import com.example.mainBase.entities.SemesterCourseInstructor;
 import com.example.mainBase.entities.User;
+import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.exception.ResourceNotFoundException;
 import com.example.mainBase.mapper.CourseMapper;
@@ -17,6 +18,8 @@ import com.example.mainBase.mapper.InstructorMapper;
 import com.example.mainBase.mapper.SemesterMapper;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.InstructorRepository;
+import com.example.mainBase.repository.SemesterCourseInstructorRepository;
+import com.example.mainBase.repository.SemesterCourseRepository;
 import com.example.mainBase.repository.SemesterRepository;
 import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
@@ -43,25 +46,24 @@ public class SemesterServiceImpl implements SemesterService {
   private final CourseService courseService;
 
   private final InstructorRepository instructorRepository;
+  private final SemesterCourseRepository semesterCourseRepository;
+  private final SemesterCourseInstructorRepository semesterCourseInstructorRepository;
 
   @Override
   public ResponseEntity<ResponseDto> getSemester(String label) {
-    Optional<Semester> optionalSemester = semesterRepository.findByLabel(label);
+    Semester semester = semesterRepository.findByLabel(label)
+        .orElseThrow(() -> new ResourceNotFoundException("Semester not found"));
 
-    if (optionalSemester.isEmpty()) {
-      return ResponseBuilder.getFailedMessage("Semester not found");
-    }
-    Semester semester = optionalSemester.get();
     SemesterPayload semesterResponse = SemesterMapper.INSTANCE.toSemesterResponsePayload(
         semester);
     return ResponseBuilder.success("Fetched Semester Successfully", semesterResponse);
   }
 
   @Override
-  public ResponseEntity<ResponseDto> getAllSemesters() {
+  public ResponseEntity<ResponseDto> getAllSemesters(ActiveStatus status) {
     try {
       SemesterMapper semesterMapper = SemesterMapper.INSTANCE;
-      List<Semester> semesters = semesterRepository.findAll();
+      List<Semester> semesters = semesterRepository.findByActiveStatus(status);
 
       List<SemesterPayload> semesterResponse = semesterMapper.toSemesterResponsePayloadList(
           semesters);
@@ -103,10 +105,13 @@ public class SemesterServiceImpl implements SemesterService {
   public ResponseEntity<ResponseDto> addSemester(SemesterPayload payload) {
 
     Optional<Semester> optionalSemester = semesterRepository.findByLabel(payload.getLabel());
-    if (optionalSemester.isPresent()) {
-      return ResponseBuilder.getFailedMessage("Semester already exists");
+    if (optionalSemester.isEmpty()) {
+      return ResponseBuilder.getFailedMessage("Semester not found. Please try again later");
     }
     Semester semester = SemesterMapper.INSTANCE.toSemester(payload);
+
+    semester.setId(optionalSemester.get().getId());
+    semester.setSemesterOrder(optionalSemester.get().getSemesterOrder());
 
     List<SemesterCourse> semesterCourses = createSemesterCourse(semester, payload);
 
@@ -163,28 +168,42 @@ public class SemesterServiceImpl implements SemesterService {
     semester.setFee(semesterPayload.getFee());
     semester.setStartDate(semesterPayload.getStartDate());
     semester.setEndDate(semesterPayload.getEndDate());
+    semester.setActiveStatus(ActiveStatus.ACTIVE);
+
+//    for (CoursePayload coursePayload : semesterPayload.getCourse()) {
+//      Course course = courseRepository.findByCode(coursePayload.getCode());
+//
+//      if(semester.getSemesterCourses()!=null && !semester.getSemesterCourses().isEmpty()) {
+//        for (SemesterCourse semesterCourseData : semester.getSemesterCourses()) {
+//          if(course!=null && semesterCourseData.getCourse().getId() == course.getId()) {
+//            semesterCourseInstructorRepository.deleteBySemesterCourse_Id(semesterCourseData.getId());
+//            semesterCourseRepository.deleteById(semesterCourseData.getId());
+//          }
+//        }
+//      }
+//    }
 
     List<SemesterCourse> semesterCourses = new ArrayList<>();
     for (CoursePayload coursePayload : semesterPayload.getCourse()) {
       Course course = courseRepository.findByCode(coursePayload.getCode());
 
       SemesterCourse semesterCourse = new SemesterCourse();
-      SemesterCourse existingSemestercourse = null;
-
-      if(course == null) {
-        Course newCourse = courseService.addCourse(coursePayload);
-        semesterCourse.setCourse(newCourse);
-      }else{
-        semesterCourse.setCourse(course);
-      }
+      SemesterCourse existingSemesterCourse = null;
 
       if (semester.getSemesterCourses() != null && !semester.getSemesterCourses().isEmpty()) {
         for (SemesterCourse semesterCourseData : semester.getSemesterCourses()) {
           if (course != null && semesterCourseData.getCourse().getId() == course.getId()) {
             semesterCourse.setId(semesterCourseData.getId());
-            existingSemestercourse = semesterCourseData;
+            existingSemesterCourse = semesterCourseData;
           }
         }
+      }
+
+      if (course == null) {
+        Course newCourse = courseService.addCourse(coursePayload);
+        semesterCourse.setCourse(newCourse);
+      } else {
+        semesterCourse.setCourse(course);
       }
 
       semesterCourse.setSemester(semester);
@@ -196,9 +215,9 @@ public class SemesterServiceImpl implements SemesterService {
         Instructor instructor = instructorRepository.findByCode(instructorPayload.getCode())
             .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
 
-        if (existingSemestercourse != null
-            && existingSemestercourse.getSemesterCourseInstructors() != null) {
-          for (SemesterCourseInstructor sci : existingSemestercourse.getSemesterCourseInstructors()) {
+        if (existingSemesterCourse != null
+            && existingSemesterCourse.getSemesterCourseInstructors() != null) {
+          for (SemesterCourseInstructor sci : existingSemesterCourse.getSemesterCourseInstructors()) {
             if (sci.getInstructor().getId() == instructor.getId()) {
               semesterCourseInstructor.setId(sci.getId());
             }
@@ -210,7 +229,7 @@ public class SemesterServiceImpl implements SemesterService {
         semesterCourseInstructorList.add(semesterCourseInstructor);
       }
 
-      if (semesterCourse.getSemesterCourseInstructors() == null) {                  //semesterCourseInstructor could be null so initializing semtetCourseINstructor
+      if (semesterCourse.getSemesterCourseInstructors() == null) {             //semesterCourseInstructor could be null so initializing semesterCourseINstructor
         semesterCourse.setSemesterCourseInstructors(new ArrayList<>());
       }
 
@@ -224,119 +243,3 @@ public class SemesterServiceImpl implements SemesterService {
   }
 
 }
-
-//private void updateSemesterCourses(Semester semester, SemesterPayload semesterPayload) {
-//
-//    semester.setFee(semesterPayload.getFee());
-//    semester.setStartDate(semesterPayload.getStartDate());
-//    semester.setEndDate(semesterPayload.getEndDate());
-//
-//    Map<Long, SemesterCourse> existingCourseMap = semester.getSemesterCourses().stream()
-//        .collect(Collectors.toMap(sc -> sc.getCourse().getId(), sc -> sc));
-//
-//    List<SemesterCourse> updatedList = new ArrayList<>();
-//
-//    for (CoursePayload coursePayload : semesterPayload.getCourse()) {
-//      Course course = courseRepository.findByCode(coursePayload.getCode());
-//      if (course == null) {
-//        throw new RuntimeException("Course not found: " + coursePayload.getCode());
-//      }
-//
-//      SemesterCourse semesterCourse = existingCourseMap.get(course.getId());
-//      if (semesterCourse == null) {
-//        semesterCourse = new SemesterCourse();
-//        semesterCourse.setCourse(course);
-//        semesterCourse.setSemester(semester);
-//      } else {
-//        semesterCourse.getSemesterCourseInstructors().clear();
-//      }
-//
-//      List<SemesterCourseInstructor> instructors = new ArrayList<>();
-//      for (InstructorPayload instructorPayload : coursePayload.getInstructors()) {
-//        Instructor instructor = instructorRepository.findByCode(instructorPayload.getCode())
-//            .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
-//
-//        SemesterCourseInstructor sci = SemesterCourseInstructor.builder()
-//            .semesterCourse(semesterCourse)
-//            .instructor(instructor)
-//            .build();
-//
-//        instructors.add(sci);
-//      }
-//      if (semesterCourse.getSemesterCourseInstructors() == null) {
-//        semesterCourse.setSemesterCourseInstructors(new ArrayList<>());
-//      } else {
-//        semesterCourse.getSemesterCourseInstructors().clear();
-//      }
-//      semesterCourse.getSemesterCourseInstructors().addAll(instructors);
-//
-//      updatedList.add(semesterCourse);
-//
-//      semester.getSemesterCourses().clear();
-//      semester.getSemesterCourses().addAll(updatedList);
-//    }
-
-//  private List<SemesterCourse> createSemesterCourse(Semester semester, SemesterPayload semesterPayload) {
-//
-//    semester.setFee(semesterPayload.getFee());
-//    semester.setStartDate(semesterPayload.getStartDate());
-//    semester.setEndDate(semesterPayload.getEndDate());
-//
-//    return semesterPayload.getCourse().stream()
-//        .map(coursePayload -> {
-//          Course course = Optional.ofNullable(courseRepository.findByCode(coursePayload.getCode()))
-//              .orElseThrow(() -> new RuntimeException("Course not found: " + coursePayload.getCode()));
-//
-//          SemesterCourse semesterCourse = new SemesterCourse();
-//          SemesterCourse existingSemesterCourse = new  SemesterCourse();
-//
-//          if(semester.getSemesterCourses()!=null && !semester.getSemesterCourses().isEmpty()){
-//            existingSemesterCourse = semester.getSemesterCourses().stream().filter(val -> val.getCourse().getId() == course.getId()).findFirst().orElse(null);
-//            if(existingSemesterCourse != null){
-//              semesterCourse.setId(existingSemesterCourse.getId());
-//            }
-//          }
-//
-//
-//          semesterCourse.setCourse(course);
-//          semesterCourse.setSemester(semester);
-//
-//          List<SemesterCourseInstructor> semesterCourseInstructors = new ArrayList<>();
-//
-//          for(InstructorPayload instructors: coursePayload.getInstructors()) {
-//            SemesterCourseInstructor semesterCourseInstructor = new  SemesterCourseInstructor();
-//
-//            Instructor instructor = instructorRepository.findByCode(instructors.getCode())
-//                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
-//
-//
-//
-//            if(existingSemesterCourse != null){
-//              List<SemesterCourseInstructor> existingSemesterCourseInstructor = existingSemesterCourse.getSemesterCourseInstructors().stream().filter(
-//                  val -> val.getInstructor().getId() == instructor.getId()
-//              ).toList();
-//              if(!existingSemesterCourseInstructor.isEmpty()){
-//                semesterCourseInstructor.setId(existingSemesterCourseInstructor.getFirst().getId());
-//              }
-//            }
-//
-//
-//            semesterCourseInstructor.setInstructor(instructor);
-//            semesterCourseInstructor.setSemesterCourse(semesterCourse);
-//
-//            semesterCourseInstructors.add(semesterCourseInstructor);
-//          }
-//
-//          semesterCourse.setSemesterCourseInstructors(semesterCourseInstructors);
-//          return semesterCourse;
-//        })
-//        .collect(Collectors.toList());
-//  }
-//
-//}
-
-
-
-
-
-

@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -28,11 +29,11 @@ public class SemesterCourse {
   private Long id;
 
   @ManyToOne
-//  @JoinColumn(name="semester_id", nullable = false)
+  @JoinColumn(name="semester_id", nullable = false)
   private Semester semester;
 
   @OneToOne
-//  @JoinColumn(name = "course_id", nullable = false)
+  @JoinColumn(name = "course_id", nullable = false)
   private Course course;
 
   @OneToMany(mappedBy = "semesterCourse", cascade = CascadeType.ALL, orphanRemoval = true)

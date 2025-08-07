@@ -9,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,5 +48,9 @@ public class Course {
   private ActiveStatus activeStatus;
 
   private String remarks;
+
+  @OneToOne(mappedBy = "course")
+  @JoinColumn(name = "course_id")
+  private SemesterCourse semesterCourse;
 
 }

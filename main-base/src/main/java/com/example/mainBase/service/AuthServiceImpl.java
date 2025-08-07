@@ -4,17 +4,20 @@ import com.example.mainBase.auth.jwt.JwtUtil;
 import com.example.mainBase.dto.LoginRequest;
 import com.example.mainBase.dto.LoginUserResponse;
 import com.example.mainBase.dto.ResponseDto;
+import com.example.mainBase.entities.Enrollment;
 import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.enums.EnrollStatus;
 import com.example.mainBase.enums.Role;
+import com.example.mainBase.mapper.RoleMapper;
+import com.example.mainBase.repository.EnrollmentRepository;
 import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.security.CustomUserDetailService;
-import com.example.mainBase.util.PasswordValidator;
 import com.example.mainBase.util.ResponseBuilder;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
   private final UserService userService;
   private final AuditLogService auditLogService;
   private final StudentRepository studentRepository;
+  private final EnrollmentRepository enrollmentRepository;
 
   public ResponseEntity<ResponseDto> login(LoginRequest loginRequest) {
     try {
@@ -53,9 +57,10 @@ public class AuthServiceImpl implements AuthService {
         return ResponseBuilder.getFailedMessage("Your account is inactive.");
       }
 
-      if (user.getRole().equals(Role.STUDENT)) {
+      if (user.getNewRole().getRoleType().equals(Role.STUDENT)) {
         Student student = studentRepository.findByUser(user);
-        if(student.getEnrollStatus().equals(EnrollStatus.QUIT) || student.getEnrollStatus().equals(EnrollStatus.REJECTED)) {
+        List<Enrollment> enrollment = enrollmentRepository.findEnrollmentForStudent(student.getId());
+        if(student.getEnrollStatus().equals(EnrollStatus.QUIT) || (student.getEnrollStatus().equals(EnrollStatus.REJECTED) && enrollment.isEmpty())) {
           return ResponseBuilder.getFailedMessage("You are not a valid student.");
         }
       }
@@ -66,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
           .firstName(user.getFirstName())
           .middleName(user.getMiddleName())
           .lastName(user.getLastName())
-          .role(user.getRole().name())
+          .role(RoleMapper.INSTANCE.toRoleDto(user.getNewRole()))
           .mustChangePassword(user.isMustChangePassword())
           .accessExpiryDate(jwtUtil.extractExpiryDate(accessToken))
           .refreshExpiryDate(jwtUtil.extractExpiryDate(refreshToken))
@@ -82,20 +87,6 @@ public class AuthServiceImpl implements AuthService {
 
       ResponseDto responseBody = new ResponseDto(true, message,
           loginUserResponse);
-
-//      boolean isPasswordValid = passwordValidator.validatePassword(loginRequest.getPassword());
-//      isPasswordValid = !isPasswordValid;           //todo: doesn't work if i directly assign !isPasswordPolicy as condition in if
-
-//      if(isPasswordValid) {
-//        return ResponseEntity
-//            .badRequest()
-//            .header(HttpHeaders.AUTHORIZATION, accessToken)
-//            .header("X-Refresh-Token", refreshToken)
-//            .body(ResponseDto.builder()
-//                .message("Password does not meet policy requirements. Please change your password.")
-//                .body(responseBody)
-//                .build());
-//      }
 
       return ResponseEntity.ok()
           .header(HttpHeaders.AUTHORIZATION, accessToken)

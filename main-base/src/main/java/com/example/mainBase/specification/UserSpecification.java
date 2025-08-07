@@ -1,7 +1,10 @@
 package com.example.mainBase.specification;
 
+import com.example.mainBase.entities.Role;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.model.FilterUser;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
 public class UserSpecification {
@@ -24,13 +27,16 @@ public class UserSpecification {
   }
 
   public static Specification<User> hasRole(String role) {
-    return (root, query, criteriaBuilder) ->
-        criteriaBuilder.equal(root.get("role"), role);
+    return (root, query, criteriaBuilder) -> {
+      Join<User, Role> userRoleJoin = root.join("newRole", JoinType.INNER);
+
+      return criteriaBuilder.equal(userRoleJoin.get("roleType"), role);
+    };
   }
 
   public static Specification<User> hasPhoneNumber(String phoneNumber) {
     return (root, query, criteriaBuilder) ->
-        criteriaBuilder.equal(root.get("phoneNumber"), phoneNumber);
+        criteriaBuilder.like(root.get("phoneNumber"), phoneNumber + "%");
   }
 
   public static Specification<User> hasStatusActive() {

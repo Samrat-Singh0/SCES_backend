@@ -4,6 +4,7 @@ import com.example.mainBase.dto.CoursePayload;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.model.FilterCourse;
 import com.example.mainBase.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -34,11 +35,12 @@ public class CourseController {
     return courseService.getAllCourses();
   }
 
-  @GetMapping("/paged/list")
+  @PostMapping("/paged/list")
   public ResponseEntity<ResponseDto> getCourses(
+      @RequestBody @Valid FilterCourse criteria,
       @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable
   ) {
-    return courseService.getAllCourses(pageable);
+    return courseService.getAllCourses(criteria, pageable);
   }
 
   @GetMapping("/list/pending")
@@ -57,12 +59,6 @@ public class CourseController {
     return courseService.getCoursesWithNoSemester();
   }
 
-//  @PostMapping("/add")
-//  @PreAuthorize("hasRole(@securityRoles.SUPER)")
-//  public ResponseEntity<ResponseDto> addCourse(@RequestBody CoursePayload course) {
-//    return courseService.addCourse(course);
-//  }
-
   @PostMapping("/delete/{code}")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> deleteCourse(@PathVariable String code,
@@ -72,14 +68,7 @@ public class CourseController {
 
   @PostMapping("/update")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> updateCourse(@RequestBody CoursePayload course) {
+  public ResponseEntity<ResponseDto> updateCourse(@RequestBody @Valid CoursePayload course) {
     return courseService.updateCourse(course);
   }
-
-  @PostMapping("/search")
-  @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> searchCourse(@RequestBody FilterCourse criteria, @PageableDefault(size = 5, page = 0, sort = "name") Pageable pageable) {
-    return courseService.getCourseBySearchText(criteria, pageable);
-  }
-
 }

@@ -5,6 +5,7 @@ import com.example.mainBase.dto.ChangePasswordRequest;
 import com.example.mainBase.dto.LoginRequest;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,7 @@ public class AuthController {
 
   @PostMapping("/change-password")
   public ResponseEntity<ResponseDto> changePassword(
-      @RequestBody ChangePasswordRequest changePasswordRequest) {
+      @RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
     return userService.changePassword(changePasswordRequest);
   }
 

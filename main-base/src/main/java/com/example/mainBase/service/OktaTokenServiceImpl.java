@@ -52,6 +52,24 @@ public class OktaTokenServiceImpl implements OktaTokenService {
   @Value("${oauth.student.audience}")
   private String studentAudience;
 
+  @Value("${oauth.accountant.client.id}")
+  private String accountantClientId;
+
+  @Value("${oauth.accountant.client.secret}")
+  private String accountantClientSecret;
+
+  @Value("${oauth.accountant.audience}")
+  private String accountantAudience;
+
+  @Value("${oauth.peon.client.id}")
+  private String peonClientId;
+
+  @Value("${oauth.peon.client.secret}")
+  private String peonClientSecret;
+
+  @Value("${oauth.peon.audience}")
+  private String peonAudience;
+
   private String cachedToken;       //by default, spring beans haru singleton hunxan, so cachedToken ko naya instance bandaina
   private Instant tokenExpiry;
 
@@ -70,7 +88,7 @@ public class OktaTokenServiceImpl implements OktaTokenService {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     User user = commonBeanUtility.getLoggedInUser();
-    OktaTokenRequestDto tokenRequestDto = getRequestDto(user.getRole().toString());
+    OktaTokenRequestDto tokenRequestDto = getRequestDto(user.getNewRole().getRoleType().toString());
 
     HttpEntity<OktaTokenRequestDto> request = new HttpEntity<>(tokenRequestDto, headers);
 
@@ -118,6 +136,24 @@ public class OktaTokenServiceImpl implements OktaTokenService {
             .clientSecret(instructorClientSecret)
             .grantType("client_credentials")
             .audience(instructorAudience)
+            .build();
+        break;
+      }
+      case "accountant":{
+        tokenRequestDto = OktaTokenRequestDto.builder()
+            .clientId(accountantClientId)
+            .clientSecret(accountantClientSecret)
+            .grantType("client_credentials")
+            .audience(accountantAudience)
+            .build();
+        break;
+      }
+      case "peon":{
+        tokenRequestDto = OktaTokenRequestDto.builder()
+            .clientId(peonClientId)
+            .clientSecret(peonClientSecret)
+            .grantType("client_credentials")
+            .audience(peonAudience)
             .build();
         break;
       }

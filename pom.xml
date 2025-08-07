@@ -34,7 +34,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>main-base</module>
-		<module>reporting-and-analytics</module>
 		<module>app-starter</module>
 	</modules>
 

@@ -9,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,9 +50,6 @@ public class User {
   @Column(name = "phone_number", unique = true, nullable = false)
   private String phoneNumber;
 
-  @Enumerated(EnumType.STRING)
-  private Role role;
-
   @Column(name = "must_change_password", nullable = false)
   private boolean mustChangePassword;
 
@@ -59,4 +58,8 @@ public class User {
   private ActiveStatus activeStatus;
 
   private String remarks;
+
+  @ManyToOne
+  @JoinColumn(name = "role_id")
+  private com.example.mainBase.entities.Role newRole;
 }

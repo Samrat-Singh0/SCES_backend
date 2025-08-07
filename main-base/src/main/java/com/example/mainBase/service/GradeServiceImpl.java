@@ -6,6 +6,8 @@ import com.example.mainBase.entities.AuditLog;
 import com.example.mainBase.entities.Course;
 import com.example.mainBase.entities.Enrollment;
 import com.example.mainBase.entities.Grade;
+import com.example.mainBase.entities.Semester;
+import com.example.mainBase.entities.SemesterCourse;
 import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.AuditAction;
@@ -13,10 +15,12 @@ import com.example.mainBase.enums.CompletionStatus;
 import com.example.mainBase.enums.Role;
 import com.example.mainBase.exception.ResourceNotFoundException;
 import com.example.mainBase.mapper.GradeMapper;
+import com.example.mainBase.mapper.SemesterMapper;
 import com.example.mainBase.repository.CourseRepository;
 import com.example.mainBase.repository.EnrollmentRepository;
 import com.example.mainBase.repository.GradeRepository;
-import com.example.mainBase.repository.InstructorRepository;
+import com.example.mainBase.repository.SemesterCourseRepository;
+import com.example.mainBase.repository.SemesterRepository;
 import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.CommonUtility;
@@ -37,6 +41,8 @@ public class GradeServiceImpl implements GradeService {
   private final EnrollmentRepository enrollmentRepository;
   private final AuditLogService auditLogService;
   private final CourseRepository courseRepository;
+  private final SemesterRepository semesterRepository;
+  private final SemesterCourseRepository semesterCourseRepository;
 
 
   @Override
@@ -44,10 +50,16 @@ public class GradeServiceImpl implements GradeService {
     User user = commonBeanUtility.getLoggedInUser();
     Student student = studentRepository.findByUser_Id(user.getId())
         .orElseThrow(() -> new ResourceNotFoundException("Student Not Found"));
-    List<Grade> grades = gradeRepository.findByStudentId(student.getId(),
-        CompletionStatus.RUNNING);
+    List<Grade> grades = gradeRepository.findByStudentId(student.getId());
 
     List<GradePayload> payloads = GradeMapper.INSTANCE.toPayloads(grades);
+    for (GradePayload payload : payloads) {
+      Course course = courseRepository.findByCode(payload.getCourse().getCode());
+      SemesterCourse semesterCourse = semesterCourseRepository.findByCourseId(course.getId());
+      Semester semester = semesterRepository.findById(semesterCourse.getSemester().getId()).orElseThrow(() -> new ResourceNotFoundException("Semester Not Found"));
+
+      payload.getCourse().setSemester(SemesterMapper.INSTANCE.toSemesterResponsePayload(semester));
+    }
 
     return ResponseBuilder.success("Fetched Grades Successfully", payloads);
   }
@@ -68,7 +80,7 @@ public class GradeServiceImpl implements GradeService {
     Course course = courseRepository.findByCode(payload.getCourse().getCode());
     AuditAction action = AuditAction.CREATED;
 
-    Grade oldGrade = gradeRepository.findByStudent(student);
+    Grade oldGrade = gradeRepository.findByStudentAndCourse(student, course);
 
     if(oldGrade != null) {
       User user = commonBeanUtility.getLoggedInUser();
@@ -76,7 +88,7 @@ public class GradeServiceImpl implements GradeService {
       AuditLog createdLog = Optional.ofNullable(auditLogService.getLog(AuditAction.UPDATED, "Grade", oldGrade.getId()))
           .orElseThrow(() -> new ResourceNotFoundException("AuditLog Not Found"));
 
-      if(user.getRole().equals(Role.INSTRUCTOR) && !createdLog.getUser().getId().equals(user.getId()) ){
+      if(user.getNewRole().getRoleType().equals(Role.INSTRUCTOR) && !createdLog.getUser().getId().equals(user.getId()) ){
         return ResponseBuilder.getFailedMessage("You are not permitted to edit.");
       }
     }

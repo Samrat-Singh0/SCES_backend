@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface UserService {
 
-  ResponseEntity<ResponseDto> getActiveUsers(Pageable pageable);
+  ResponseEntity<ResponseDto> getActiveUsers(FilterUser filterUser, Pageable pageable);
 
   ResponseEntity<ResponseDto> getActiveUsers();
 
@@ -23,8 +23,6 @@ public interface UserService {
   ResponseEntity<ResponseDto> updateUser(UserRequestPayload userRequestPayload);
 
   ResponseEntity<ResponseDto> changePassword(ChangePasswordRequest changePasswordRequest);
-
-  ResponseEntity<ResponseDto> getUserBySearchText(FilterUser filterCriteria, Pageable pageable);
 
   void setMustChangePassword();
 }

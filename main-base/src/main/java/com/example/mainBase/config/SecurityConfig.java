@@ -1,6 +1,7 @@
 package com.example.mainBase.config;
 
 import com.example.mainBase.auth.jwt.JwtFilter;
+import com.example.mainBase.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +38,8 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
-                "/actuator/**",
+                "/actuator/health",
+                "/actuator/info",
                 "/api/auth/login/**",
                 "/api/auth/change-password/**",
                 "/api/auth/refresh/**",
@@ -48,6 +50,7 @@ public class SecurityConfig {
                 "/swagger-config/**"
             )
             .permitAll()
+            .requestMatchers("/actuator/**").hasRole(String.valueOf(Role.SUPER_ADMIN))
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

@@ -2,6 +2,7 @@ package com.example.mainBase.repository;
 
 
 import com.example.mainBase.entities.Enrollment;
+import com.example.mainBase.entities.Semester;
 import com.example.mainBase.entities.Student;
 import com.example.mainBase.enums.CompletionStatus;
 import java.util.List;
@@ -29,6 +30,9 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
   List<Enrollment> findByStudent_idAndCompletionStatus(long studentId,
       CompletionStatus completionStatus);
 
+  @Query(value = "SELECT e from Enrollment e where e.student.id=:studentId and (e.completionStatus='RUNNING' OR e.completionStatus='PENDING')")
+  List<Enrollment> findByStudent_idAndCompletionStatusOrPendingStatus(long studentId);
+
   List<Enrollment> findAllByStudent_Id(long studentId);
 
   List<Enrollment> findByCompletionStatusNot(CompletionStatus completionStatus);
@@ -36,5 +40,16 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
   Page<Enrollment> findByCompletionStatusNot(CompletionStatus completionStatus, Pageable pageable);
 
   List<Enrollment> findByCompletionStatus(CompletionStatus completionStatus);
+
+  @Query(value = "SELECT e FROM Enrollment e "
+      + "JOIN EnrollmentCourse ec on ec.enrollment.id=e.id "
+      + "JOIN Course c ON c.id = ec.course.id "
+      + "WHERE c.id = :courseId AND e.completionStatus='RUNNING'")
+  List<Enrollment> findByCourseId(long courseId);
+
+  @Query(value = "SELECT e.semester FROM Enrollment e "
+      + "WHERE e.student=:student AND e.semester.id = ("
+      + "SELECT MAX(en.semester.id) FROM Enrollment en WHERE en.student=:student)")
+  Semester fetchByHighestSemester(Student student);
 
 }

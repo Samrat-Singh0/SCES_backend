@@ -12,13 +12,13 @@ public class UserRoleEntityFactoryImpl implements UserRoleEntityFactory {
 
   @Override
   public Object createRoleEntity(User user) {
-    if ("student".equalsIgnoreCase(String.valueOf(user.getRole()))) {
+    if ("student".equalsIgnoreCase(String.valueOf(user.getNewRole().getRoleType()))) {
       return Student.builder()
           .user(user)
           .code(CommonUtility.generateUserCode("STU"))
           .enrollStatus(EnrollStatus.NEW)
           .build();
-    } else if("instructor".equalsIgnoreCase(String.valueOf(user.getRole()))) {
+    } else if("instructor".equalsIgnoreCase(String.valueOf(user.getNewRole().getRoleType()))) {
       Instructor instructor = new Instructor();
       instructor.setUser(user);
       instructor.setCode(CommonUtility.generateUserCode("INS"));

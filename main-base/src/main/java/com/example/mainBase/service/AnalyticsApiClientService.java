@@ -5,6 +5,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface AnalyticsApiClientService {
 
-  ResponseEntity<ResponseDto> getAnalytics();
+  ResponseEntity<ResponseDto> getAnalytics() throws Exception;
 
 }

@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 
 public interface ReportingApiClientService {
 
-  ResponseEntity<?> getReport(ReportRequestDto reportRequestDto) throws Exception;
+  ResponseEntity<?> getCourseReport(ReportRequestDto reportRequestDto) throws Exception;
+
+  ResponseEntity<?> getSemesterReport(ReportRequestDto reportRequestDto) throws Exception;
 
 }

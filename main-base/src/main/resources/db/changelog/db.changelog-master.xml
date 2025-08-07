@@ -600,4 +600,127 @@
       constraintName="fk_course_instructor"/>
     <dropColumn tableName="course" columnName="instructor_id"/>
   </changeSet>
+
+  <changeSet id="2025-07-27-create-table-roll" author="Samrat Singh">
+    <createTable tableName="role">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="role_name" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="role_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-07-27-create-table-permission" author="Samrat Singh">
+    <createTable tableName="permission">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="module" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="path" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="is_active" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-07-27-drop-table-permission" author="Samrat Singh">
+    <dropTable tableName="permission"/>
+  </changeSet>
+
+  <changeSet id="2025-07-27-recreate-table-permission" author="Samrat Singh">
+    <createTable tableName="permission">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="code" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="module" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="path" type="varchar(255)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="is_active" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2025-07-28-create-table-role-permission" author="Samrat Singh">
+    <createTable tableName="role_permission">
+      <column name="role_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="permission_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey tableName="role_permission" columnNames="role_id, permission_id"
+      constraintName="pk_role_permission"/>
+
+    <addForeignKeyConstraint baseTableName="role_permission" baseColumnNames="role_id"
+      constraintName="fk_role_permission_role"
+      referencedTableName="role" referencedColumnNames="id" onDelete="CASCADE"/>
+
+    <addForeignKeyConstraint baseTableName="role_permission" baseColumnNames="permission_id"
+      constraintName="fk_role_permission_permission"
+      referencedTableName="permission" referencedColumnNames="id" onDelete="CASCADE"/>
+  </changeSet>
+
+  <changeSet id="2025-07-31-add-column-order-in-semester" author="Samrat Singh">
+    <addColumn tableName="semester">
+      <column name="order" type="int"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-07-31-add-column-active-status-in-semester" author="Samrat Singh">
+    <addColumn tableName="semester">
+      <column name="active_status" type="varchar(20)" defaultValue="INACTIVE">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2025-08-01-rename-column-order-in-semester" author="Samrat Singh">
+    <renameColumn tableName="semester" oldColumnName="order" newColumnName="semester_order" columnDataType="varchar(20)"/>
+  </changeSet>
+
+  <changeSet id="2025-08-05-rename-role-column-in-user" author="Samrat Singh">
+    <renameColumn tableName="user" oldColumnName="role" newColumnName="old_role" columnDataType="varchar(50)"/>
+  </changeSet>
+
+  <changeSet id="2025-08-05-rename-role-in-user" author="Samrat Singh">
+    <renameColumn tableName="user" oldColumnName="old_role" newColumnName="role" columnDataType="varchar(50)"/>
+  </changeSet>
+
+  <changeSet id="2025-08-05-drop-column-role-in-user" author="Samrat Singh">
+    <dropColumn tableName="user" columnName="role"/>
+  </changeSet>
+
+  <changeSet id="add-column-icon-name-in-permission" author="Samrat Singh">
+    <addColumn tableName="permission">
+      <column name="icon_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

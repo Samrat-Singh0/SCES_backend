@@ -1,6 +1,9 @@
 package com.example.mainBase.service;
 
 import com.example.mainBase.dto.ResponseDto;
+import com.example.mainBase.entities.User;
+import com.example.mainBase.util.AESUtil;
+import com.example.mainBase.util.CommonBeanUtility;
 import com.example.mainBase.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,16 +24,26 @@ public class AnalyticsApiClientServiceImpl implements AnalyticsApiClientService 
   @Value("${reporting.api.url}")
   private String reportAndAnalyticsBaseUrl;
 
+  private final SecretKeyService secretKeyService;
+
+  private final CommonBeanUtility commonBeanUtility;
+
   @Override
-  public ResponseEntity<ResponseDto> getAnalytics() {
+  public ResponseEntity<ResponseDto> getAnalytics() throws Exception {
+
+    User user = commonBeanUtility.getLoggedInUser();
+
+    String encryptedUserCode = AESUtil.encrypt(user.getCode(), secretKeyService.getKey());
+
+
     String url = reportAndAnalyticsBaseUrl + "/api/analytics/list";
     String token = oktaTokenService.getAccessToken();
 
     HttpHeaders headers = new HttpHeaders();
     headers.setBearerAuth(token);
-    HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+    HttpEntity<String> requestEntity = new HttpEntity<>(encryptedUserCode, headers);
 
-    ResponseEntity<ResponseDto> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, ResponseDto.class);
+    ResponseEntity<ResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, ResponseDto.class);
     if(response.getBody() != null) {
       return ResponseBuilder.success("Course Report", response.getBody().getBody());
     }

@@ -2,7 +2,9 @@ package com.example.mainBase.controller;
 
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.dto.SemesterPayload;
+import com.example.mainBase.enums.ActiveStatus;
 import com.example.mainBase.service.SemesterService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,16 +31,18 @@ public class SemesterController {
     return semesterService.getSemester(label);
   }
 
-  @GetMapping("/list")
+  @GetMapping("/list/{status}")
 //  @PreAuthorize("hasRole(@securityRoles.SUPER)")
-  public ResponseEntity<ResponseDto> getAll() {
-    return semesterService.getAllSemesters();
+  public ResponseEntity<ResponseDto> getAll(
+      @PathVariable ActiveStatus status
+  ) {
+    return semesterService.getAllSemesters(status);
   }
 
   @PostMapping("/add")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> addSemester(
-      @RequestBody SemesterPayload semesterPayload
+      @RequestBody @Valid SemesterPayload semesterPayload
   ) {
     return semesterService.addSemester(semesterPayload);
   }

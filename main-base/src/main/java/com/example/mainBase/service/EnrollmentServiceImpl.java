@@ -53,7 +53,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   public ResponseEntity<ResponseDto> getEnrollments() {
       List<Enrollment> enrollments;
       User user = commonBeanUtility.getLoggedInUser();
-      if (user.getRole() == Role.STUDENT) {
+      if (user.getNewRole().getRoleType() == Role.STUDENT) {
         Student student = studentRepository.findByUser(user);
         enrollments = enrollmentRepository.findEnrollmentForStudent(student.getId());
       } else {
@@ -65,17 +65,27 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   }
 
   @Override
-  public ResponseEntity<ResponseDto> getEnrollments(Pageable pageable) {
+  public ResponseEntity<ResponseDto> getEnrollments(FilterEnrollment criteria, Pageable pageable) {
     User user = commonBeanUtility.getLoggedInUser();
-    Page<Enrollment> enrollmentPage;
-    if (user.getRole() == Role.STUDENT) {
-      Student student = studentRepository.findByUser(user);
-      enrollmentPage = enrollmentRepository.findEnrollmentPageForStudent(student.getId(), pageable);
+    Specification<Enrollment> specification = EnrollmentSpecification.buildSpec(criteria);
+
+    if(user.getNewRole().getRoleType().equals(Role.SUPER_ADMIN)) {
+      Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(specification, pageable);
+      Page<EnrollmentResponsePayload> enrollmentResponsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+      return ResponseBuilder.success("Fetched Enrollment Successfully", enrollmentResponsePayloads);
     }else {
-      enrollmentPage = enrollmentRepository.findByCompletionStatusNot(CompletionStatus.PENDING, pageable);
+      Student student = studentRepository.findByUser(user);
+      Specification<Enrollment> studentSpec = (root, query, cb) ->
+          cb.equal(root.get("student").get("id"), student.getId());
+
+      Specification<Enrollment> finalSpec = specification.and(studentSpec);
+
+      Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(finalSpec, pageable);
+      Page<EnrollmentResponsePayload> enrollmentResponsePayloads =
+          EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
+
+      return ResponseBuilder.success("Fetched Student Enrollment Successfully", enrollmentResponsePayloads);
     }
-    Page<EnrollmentResponsePayload> responsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
-    return ResponseBuilder.success("Fetched Enrollments Successfully", responsePayloads);
   }
 
   @Override
@@ -90,7 +100,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   @Override
   @Transactional
   public ResponseEntity<ResponseDto> addEnrollment(EnrollmentPayload payload) {
-    try {
       Enrollment enrollment = EnrollmentMapper.INSTANCE.toEnrollment(payload);
 
       Optional<Semester> semester = semesterRepository.findByLabel(
@@ -105,10 +114,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return ResponseBuilder.getFailedMessage("Student Not Found");
       }
 
-      List<Enrollment> existingEnrollmentRunning = enrollmentRepository.findByStudent_idAndCompletionStatus(
-          student.getId(),
-          CompletionStatus.RUNNING);
-      if (!existingEnrollmentRunning.isEmpty()) {
+      List<Enrollment> existingEnrollmentRunningOrPending = enrollmentRepository.findByStudent_idAndCompletionStatusOrPendingStatus(
+          student.getId());
+      if (!existingEnrollmentRunningOrPending.isEmpty()) {
         return ResponseBuilder.getFailedMessage(
             "You are currently enrolled to an existing course.");
       }
@@ -144,19 +152,39 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
       List<Enrollment> existingEnrollment = enrollmentRepository.findAllByStudent_Id(
           student.getId());           //student may not be new
-      if (existingEnrollment == null) {
+      if (existingEnrollment.isEmpty()) {
         student.setEnrollStatus(EnrollStatus.NEW);
         studentRepository.save(student);
+        Semester lowestSemester = semesterRepository.findTopByOrderByIdAsc();
+        if(!payload.getSemester().getLabel().equalsIgnoreCase(lowestSemester.getLabel())) {
+          return ResponseBuilder.getFailedMessage("You cannot skip a semester");
+        }
       }
+      Semester highestSemester = enrollmentRepository.fetchByHighestSemester(student);
+      Semester nextHighestSemester = null;
+      if(highestSemester == null) {
+        nextHighestSemester = semesterRepository.findTopByOrderByIdAsc();
+      }else{
+        long i = 1L;
+        while(nextHighestSemester == null) {
+          nextHighestSemester = getNextHighestSemester(highestSemester.getId()+i);
+        }
+      }
+      if(semester.get().getId() != nextHighestSemester.getId()) {
+        return ResponseBuilder.getFailedMessage("You cannot skip a semester");
+      }
+
 
       enrollmentRepository.save(EnrollmentBuilder.build(enrollment, semester.get(), student));
 
       auditLogService.log(user, AuditAction.CREATED, "Enrollment", enrollment.getId());
 
       return ResponseBuilder.success("Enrollment Added Successfully", null);
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
-    }
+
+  }
+
+  Semester getNextHighestSemester(long id){
+    return semesterRepository.findById(id).orElse(null);
   }
 
   @Override
@@ -209,30 +237,4 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
   }
 
-  @Override
-  public ResponseEntity<ResponseDto> getCourseBySearchText(FilterEnrollment criteria,
-      Pageable pageable) {
-    User user = commonBeanUtility.getLoggedInUser();
-    Specification<Enrollment> specification = EnrollmentSpecification.buildSpec(criteria);
-
-    if(user.getRole().equals(Role.SUPER_ADMIN)) {
-      Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(specification, pageable);
-      Page<EnrollmentResponsePayload> enrollmentResponsePayloads = EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
-      return ResponseBuilder.success("Fetched Enrollment Successfully", enrollmentResponsePayloads);
-    }else {
-      Student student = studentRepository.findByUser(user);
-      Specification<Enrollment> studentSpec = (root, query, cb) ->
-          cb.equal(root.get("student").get("id"), student.getId());
-
-      Specification<Enrollment> finalSpec = specification.and(studentSpec);
-
-      Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(finalSpec, pageable);
-      Page<EnrollmentResponsePayload> enrollmentResponsePayloads =
-          EnrollmentMapper.INSTANCE.toEnrollmentResponsePayloadPage(enrollmentPage);
-
-      return ResponseBuilder.success("Fetched Student Enrollment Successfully", enrollmentResponsePayloads);
-    }
-
-
-  }
 }

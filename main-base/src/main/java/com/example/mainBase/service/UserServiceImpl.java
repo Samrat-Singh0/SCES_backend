@@ -5,6 +5,7 @@ import com.example.mainBase.dto.ChangePasswordRequest;
 import com.example.mainBase.dto.ResponseDto;
 import com.example.mainBase.dto.UserRequestPayload;
 import com.example.mainBase.entities.Instructor;
+import com.example.mainBase.entities.Role;
 import com.example.mainBase.entities.Student;
 import com.example.mainBase.entities.User;
 import com.example.mainBase.enums.ActiveStatus;
@@ -12,6 +13,7 @@ import com.example.mainBase.enums.AuditAction;
 import com.example.mainBase.mapper.UserMapper;
 import com.example.mainBase.model.FilterUser;
 import com.example.mainBase.repository.InstructorRepository;
+import com.example.mainBase.repository.RoleRepository;
 import com.example.mainBase.repository.StudentRepository;
 import com.example.mainBase.repository.UserRepository;
 import com.example.mainBase.specification.UserSpecification;
@@ -42,9 +44,10 @@ public class UserServiceImpl implements UserService {
   private final AuditLogService auditLogService;
   private final EmailService emailService;
   private final CommonBeanUtility commonBeanUtility;
+  private final RoleRepository roleRepository;
 
   @Override
-  public ResponseEntity<ResponseDto> getActiveUsers() {
+  public ResponseEntity<ResponseDto> getActiveUsers(){
     List<User> users = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
     if (users.isEmpty()) {
       return ResponseBuilder.getFailedMessage("No active users found");
@@ -54,13 +57,19 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public ResponseEntity<ResponseDto> getActiveUsers(Pageable pageable) {
+  public ResponseEntity<ResponseDto> getActiveUsers(FilterUser filterUser, Pageable pageable) {
 
-    Page<User> userPage = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE, pageable);
+    List<User> userList = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
 
+    if (userList.isEmpty()) {
+      return ResponseBuilder.getFailedMessage("No any active users");
+    }
+
+    Specification<User> specification = UserSpecification.buildSpec(filterUser);
+
+    Page<User> userPage = userRepository.findAll(specification, pageable);
     Page<UserRequestPayload> userRequestPayloadPage = UserMapper.INSTANCE.toUserDtoPage(userPage);
-
-    return ResponseBuilder.success("Fetched Users Successfully", userRequestPayloadPage);
+    return ResponseBuilder.success("Fetched User Successfully", userRequestPayloadPage);
   }
 
   @Override
@@ -71,9 +80,11 @@ public class UserServiceImpl implements UserService {
       return ResponseBuilder.getFailedMessage("Email already in use");
     }
 
+    Role role = roleRepository.findByRoleType(userRequestPayload.getNewRole().getRoleType());
     String password = generateRandomPassword();
     System.out.println(password);
-    User newUser = UserBuilder.buildUserForAdd(userRequestPayload, passwordEncoder.encode(password));
+
+    User newUser = UserBuilder.buildUserForAdd(userRequestPayload, passwordEncoder.encode(password), role);
     userRepository.save(newUser);
 
     Object userRoleEntity = userRoleEntityFactoryImpl.createRoleEntity(newUser);
@@ -87,8 +98,11 @@ public class UserServiceImpl implements UserService {
     auditLogService.log(loggedInUser, AuditAction.SIGNED_UP, "User",
         newUser.getId());
 
+    Thread thread = new Thread(() -> {
+      sendEmail(userRequestPayload.getEmail(), password);
+    });
+    thread.start();
 
-    sendEmail(userRequestPayload.getEmail(), password);
     return ResponseBuilder.success("New User Added.", null);
   }
 
@@ -125,29 +139,6 @@ public class UserServiceImpl implements UserService {
     }
 
   }
-
-  @Override
-  public ResponseEntity<ResponseDto> getUserBySearchText(
-      FilterUser filterCriteria, Pageable pageable) {
-    try {
-      List<User> userList = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);
-
-      if (userList.isEmpty()) {
-        return ResponseBuilder.getFailedMessage("No any active users");
-      }
-
-      Specification<User> specification = UserSpecification.buildSpec(filterCriteria);
-
-      Page<User> userPage = userRepository.findAll(specification, pageable);
-      Page<UserRequestPayload> userRequestPayloadPage = UserMapper.INSTANCE.toUserDtoPage(userPage);
-
-      return ResponseBuilder.success("Fetched User Successfully", userRequestPayloadPage);
-
-    } catch (Exception e) {
-      return ResponseBuilder.getFailedMessage(e.getMessage());
-    }
-  }
-
 
   private String generateRandomPassword() {
     return UUID.randomUUID().toString();
@@ -189,6 +180,5 @@ public class UserServiceImpl implements UserService {
   public void setMustChangePassword() {
     userRepository.setMustChangePasswordForAll();
   }
-
 
 }
