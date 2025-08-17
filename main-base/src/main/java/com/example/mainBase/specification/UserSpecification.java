@@ -45,7 +45,8 @@ public class UserSpecification {
   }
 
   public static Specification<User> buildSpec(FilterUser filterCriteria) {
-    Specification<User> specification = hasStatusActive();
+//    Specification<User> specification = hasAll();
+    Specification<User> specification = Specification.not(null);
 
     if (filterCriteria.getFirstName() != null) {
       specification = specification.and(hasFirstName(filterCriteria.getFirstName()));

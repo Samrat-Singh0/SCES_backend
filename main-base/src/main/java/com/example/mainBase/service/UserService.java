@@ -12,6 +12,8 @@ public interface UserService {
 
   ResponseEntity<ResponseDto> getActiveUsers(FilterUser filterUser, Pageable pageable);
 
+  ResponseEntity<ResponseDto> getAllUsers(FilterUser filterUser, Pageable pageable);
+
   ResponseEntity<ResponseDto> getActiveUsers();
 
   ResponseEntity<ResponseDto> registerUser(UserRequestPayload userRequestPayload);

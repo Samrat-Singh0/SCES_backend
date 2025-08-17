@@ -57,6 +57,21 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public ResponseEntity<ResponseDto> getAllUsers(FilterUser filterUser, Pageable pageable) {
+    List<User> userList = userRepository.findAll();
+
+    if (userList.isEmpty()) {
+      return ResponseBuilder.getFailedMessage("No any active users");
+    }
+
+    Specification<User> specification = UserSpecification.buildSpec(filterUser);
+
+    Page<User> userPage = userRepository.findAll(specification, pageable);
+    Page<UserRequestPayload> userRequestPayloadPage = UserMapper.INSTANCE.toUserDtoPage(userPage);
+    return ResponseBuilder.success("Fetched User Successfully", userRequestPayloadPage);
+  }
+
+  @Override
   public ResponseEntity<ResponseDto> getActiveUsers(FilterUser filterUser, Pageable pageable) {
 
     List<User> userList = userRepository.findAllByActiveStatus(ActiveStatus.ACTIVE);

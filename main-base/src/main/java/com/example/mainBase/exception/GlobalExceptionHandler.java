@@ -16,21 +16,25 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ResponseDto> resourceNotFound(ResourceNotFoundException e) {
+    log.error(e);
     return ResponseBuilder.getFailedMessage(e.getMessage());
   }
 
   @ExceptionHandler(NullPointerException.class)
   public ResponseEntity<ResponseDto> nullPointer(NullPointerException e) {
+    log.error(e);
     return ResponseBuilder.getFailedMessage("Data cannot be null");
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ResponseDto> methodArgumentNotValid(MethodArgumentNotValidException e) {
+    log.error(e);
     return ResponseBuilder.getFailedMessage(e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
   }
 
   @ExceptionHandler(DateTimeParseException.class)
   public ResponseEntity<ResponseDto> dateTimeParse(DateTimeParseException e) {
+    log.error(e);
     return ResponseBuilder.getFailedMessage(e.getMessage());
   }
 

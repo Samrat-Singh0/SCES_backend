@@ -23,9 +23,4 @@ public class CommonBeanUtility {
         () -> new UsernameNotFoundException(
             "User not found with email: " + authentication.getName()));
   }
-
-//  public Student setStatusEnrolled(Student student) {
-//    student.setEnrollStatus(EnrollStatus.ENROLLED);
-//    return student;
-//  }
 }

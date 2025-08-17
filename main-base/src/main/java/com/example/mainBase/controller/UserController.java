@@ -28,7 +28,7 @@ public class UserController {
   @PostMapping("/paged")
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getActiveUsers(
-      @PageableDefault(size = 10, sort = "id", direction = Direction.DESC) Pageable pageable,
+      @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
       @RequestBody FilterUser filterUser
   ) {
     return userService.getActiveUsers(filterUser, pageable);
@@ -38,6 +38,15 @@ public class UserController {
   @PreAuthorize("hasRole(@securityRoles.SUPER)")
   public ResponseEntity<ResponseDto> getActiveUsers() {
     return userService.getActiveUsers();
+  }
+
+  @PostMapping("/all/list")
+  @PreAuthorize("hasRole(@securityRoles.SUPER)")
+  public ResponseEntity<ResponseDto> getAllUsers(
+      @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
+      @RequestBody FilterUser filterUser
+  ) {
+    return userService.getAllUsers(filterUser, pageable);
   }
 
   @PostMapping("/add")

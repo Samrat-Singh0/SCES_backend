@@ -1,5 +1,6 @@
 package com.example.mainBase.dto;
 
+import com.example.mainBase.enums.ActiveStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -26,4 +27,5 @@ public class UserRequestPayload {
   private String phoneNumber;
   private RoleDto newRole;
   private boolean mustChangePassword;
+  private ActiveStatus  activeStatus;
 }
